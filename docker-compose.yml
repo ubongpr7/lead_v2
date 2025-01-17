@@ -1,17 +1,17 @@
 services:
   web:
-    image: nas415/lead_crafter:latest
+    image: nas415/lead_v2:latest
     env_file:
       - .env
     command: >
       sh -c "
         python3.10 manage.py makemigrations &&
         python3.10 manage.py migrate &&
-        python3.10 manage.py runserver 0.0.0.0:7759
+        python3.10 manage.py runserver 0.0.0.0:7739
       "
     volumes:
       - .:/app
     ports:
-      - "7759:7759"
+      - "7739:7739"
     
  
