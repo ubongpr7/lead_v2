@@ -1,0 +1,72 @@
+{% load static %}
+
+<style>
+    .profile-nav-item {
+        padding: 0.8rem 1.4rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .profile-footer {
+        padding: 0.8rem 1.4rem;
+    }
+</style>
+
+<header class="admin-header">
+    <div class="container">
+        <div class="header-two">
+            <div class="vsl-logo text-center">
+                <a href="/">
+                    <img src="{% static 'lead-maker/images/logo.svg' %}" class="img-fluid" alt="LeadMaker Logo" />
+                </a>
+            </div>
+            <div class="header-profile">
+            {% if user.user.subscription.plan.name|lower != 'free' %}
+                <div class="credit-score">
+                    <span>Credits Remaining: </span> <span>{{ user.subscription.credits }}</span>
+                </div>
+            {% else %}
+            <div class="credit-score">
+                    <span>Free Trial</span>
+                </div>
+            {% endif %}
+                <div class="dropdown">
+                    <button class="profile-icn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="{% static 'lead-maker/images/admin-user-icn.svg' %}" alt="User Profile Icon" />
+                    </button>
+                    <div class="profile-dropdown dropdown-menu dropdown-menu-end">
+                        <div class="profile-head">
+                            <h4>{{user.first_name}}</h4>
+                            <span class="email">{{ user.email }}</span>
+                        </div>
+                        <div class="profile-body">
+                            <div class="profile-nav-item">
+                                <a href="{% url 'accounts:manage_subscription'%}" style="color:#000;font-weight: 500;">Manage Subscription</a>
+                            </div>
+                            <div class="profile-nav-item">
+                                <div class="profile-nav-left">
+                                    <a href="#" style="color:#000;font-weight: 500;">Credit Left</a>
+                                </div>
+                                <div class="profile-nav-right">
+                                    <span class="count" style="color:#000;font-weight: 500;">{{ user.subscription.credits }} </span>
+                                </div>
+                                  {% if request.user.subscription.plan.name|lower == 'free' %}
+
+                                  <div class="profile-nav-left">
+                                    <a href="#" style="color:#000;font-weight: 500;">&nbsp Free Trial</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="profile-nav-item">
+                                <a href="#" style="color:#000;font-weight: 500;">Affiliate</a>
+                            </div>
+                        </div>
+                        <div class="profile-footer">
+                            <a href="/accounts/logout" style="color:#000;font-weight: 500;">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,1323 @@
+{% extends 'lead-maker/accounts/base.html' %}
+{% block content %}
+{% load static %}
+{% include "lead-maker/includes/header.html" %}
+<link rel="stylesheet" href="{% static 'lead-maker/css/scene.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.min.css">
+<style>
+  .highlight {
+    color: red;
+}
+
+</style>
+<div class="content contain">
+  <section class="login-sec voice-subtitle create-lead-sec">
+      <ul class="status-bar">
+        <li class="active loading loaded">
+          <a href="#!">Upload & Customise</a>
+        </li>
+        <li class="active loading loaded" >
+          <a href="#!">Video Trimming</a>
+        </li>
+        <li class="active">
+          <a href="#!">Lead Creation</a>
+        </li>
+        <li class="">
+          <a href="#!">Background Music Selection</a>
+        </li>
+        <li class="">
+          <a href="#!">Download</a>
+        </li>
+      </ul>
+    <div class="lead-container lead-details">
+      <div class="lead-header">
+        <a href="/text/trim-video/{{text_file.id}}" class="lead-back">
+          <img src="{% static 'lead-maker/images/left-arrow.svg' %}" alt="back" class="img-fluid" />
+        </a>
+        <h5 class="text-center lead-title">Create Your New Lead</h5>
+      </div>
+
+        <div class="d-flex justify-content-start">
+          <a href="#!" id="createLeadBtn" class="btn proceed-btn" onclick="addSlide()">
+            Add New Subtitle +
+          </a>
+        </div>
+        <table id="leadsTable" class="lead-table">
+          <thead>
+            <tr>
+              <th class="slide-first">Subtitle</th>
+              <th>Subtitle Text</th>
+              <th class="slide-last">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if clips %}
+            {% for clip in clips %}
+            <tr id="tr_{{clip.id}}">
+              <td>Subtitle {{ forloop.counter }}</td>
+                <td id="highlightable_{{forloop.counter}}">
+                  <div>
+
+                        <textarea style="display: none;"  name="slide_text" class="form-control tab-textarea" aria-describedby="textarea"  id="slide_text_{{forloop.counter}}"  >{{clip.slide}}</textarea>
+                        <div class="wrapper" id="wrapper_{{forloop.counter}}">
+                          <div  class="tag-box">
+                              <ul style="margin: 0;" id="list-of-tags_{{forloop.counter}}" class="list-of-tags">
+      
+                                  {% for subclip in clip.subclips.all %}
+                                  <li data-id="{{subclip.id}}"  
+                                    data-current_file="{{subclip.get_video_file_name}}"
+                                    id="saved_li_{{subclip.id}}"
+                                        onclick="editCurrentLi(this)">
+                                        {{subclip.subtittle}}
+                                    </li>
+                                  {% endfor %}
+                                  <span id="slide_span_{{forloop.counter}}" data-num="{{clip.get_number_of_subclip}}"
+                                      data-id="{{clip.id}}">{{ clip.remaining }}
+                                    </span>
+                              </ul>
+                              <input id="remaining_{{forloop.counter}}" name="remaining_" hidden type="text">
+                          </div>
+                        <div id="error-message_{{forloop.counter}}" style="text-transform: capitalize;" class="error-message"></div>
+                    </div>
+                  </div>
+                </td> 
+                     
+                
+              <td id='action_{{forloop.counter}}'> 
+                <a href="#!" class="delete-row-btn"id="delete_{{forloop.counter}}" onclick="deleteSavedSlide('{{clip.id}}', this)">
+                  <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
+                </a>
+                <a href="#!"  
+               class="delete-row-btn" 
+               id="edit_{{forloop.counter}}" 
+               onclick="EditeSlide('{{forloop.counter}}')">
+              <img src="{% static 'lead-maker/images/edit-button-svgrepo-com.svg' %}" alt="edit" />
+            </a>
+            <a href="#!" 
+               class="delete-row-btn" 
+               id="reset_{{forloop.counter}}" 
+               onclick="subclipReset('{{clip.id}}')">
+              <img src="{% static 'lead-maker/images/reset-svgrepo-com.svg' %}" alt="reset" />
+            </a>
+              </td>
+            </tr>
+
+            {% endfor %}
+        <input  type="number"  name="no_of_slides" id="no_of_slides" hidden value="{{no_of_slides}}">
+            {% else %}
+        <input  type="number"  name="no_of_slides" id="no_of_slides" hidden value="0">
+        {% endif %}
+          </tbody>
+        </table>
+
+        <div class="create-video d-flex justify-content-end">
+          <button type="button" onclick="highlightNoSubclipIcons()"  class="btn proceed-btn">
+            Proceed To Background Music Selection
+            <img class="btn-arrow" src="{% static 'lead-maker/images/btn-arrow.svg' %}" alt="arrow" />
+          </button>
+        </div>
+        
+      <form id="lead-form" class="lead-form" method="POST" action="."  enctype="multipart/form-data">
+        {% csrf_token %}
+      </form>
+    </div>
+  </section>
+  <div class="popup-form popup-modal" id="add-subclip-popup">
+    <div class="popup-container">
+        <div class="close-btnx close-btn" onclick="closeModal()">
+            <button class="close-popup">
+                X
+            </button>
+        </div>
+        <div id="modal-cont">
+
+        </div>
+    </div>
+</div>
+
+<style>
+  #plansPopup {
+    padding: 46px;
+    position: relative;
+    background: white;
+    border-radius: 16px
+  }
+
+  .plans-popup-container {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .close-popup {
+    width: 25px;
+    height: 25px;
+    padding: 5px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background-color: lightgray;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .p-cards-grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 400px);
+    column-gap: 20px;
+    width: fit-content;
+    height: fit-content;
+    padding: 20px;
+  }
+
+  .p-cards-grid-item {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    border: solid 0.2px #0000001a;
+    border-radius: 8px;
+    padding: 28px 28px;
+  }
+
+  .p-cards-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+    width: 100%;
+  }
+
+  .mid {
+    border: solid 2px #0e44ff;
+  }
+
+  .g-head {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32.4px;
+    letter-spacing: -0.01em;
+    text-align: left;
+  }
+
+  .g-p {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: -0.01em;
+    text-align: left;
+    margin-bottom: 28px;
+  }
+
+  .bold-size {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 54px;
+    text-align: center;
+  }
+
+  .font {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    letter-spacing: -0.6px;
+    font-weight: 800;
+    color: #00000080;
+  }
+
+  .price-promo {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+    letter-spacing: -0.01em;
+    text-align: center;
+  }
+
+  .price {
+    margin-bottom: 20px;
+  }
+
+  .benefits {
+    display: flex;
+    column-gap: 10px;
+    align-items: center;
+    justify-items: center;
+    margin-bottom: 20px;
+  }
+
+  .benefits-text {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: -0.01em;
+    text-align: left;
+  }
+
+  .p-button {
+    width: 250px;
+    background: #0e44ff;
+    padding: 12px 32px;
+    width: 82%;
+    border: solid 1px #0e44ff;
+    border-radius: 8px;
+    text-align: center;
+    display: block;
+    color: white;
+    transition: 0.3s ease;
+  }
+
+  .p-button:hover {
+    background-color: #6b4fc1;
+  }
+
+  .mp {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hype {
+    color: #0e44ff;
+    background: #9dbdff33;
+    font-size: 14px;
+    padding: 4px 8px 4px 8px;
+    border: solid 1px #9dbdff33;
+    border-radius: 50px;
+  }
+
+  .middle {
+    margin-bottom: 32px;
+  }
+
+  .bottom-heading {
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .more-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+</style>
+
+<div class="plans-popup-container hidden">
+  <div id="plansPopup">
+    <div class="close-popup">
+      <img src="{% static 'assets/icons/x.svg' %}" alt="" />
+    </div>
+
+    <div class="plans">
+      <div class="p-cards-grid-container">
+        {% if user.subscription.plan.name|lower == "free"  %}
+        <div class="p-cards-grid-item mid">
+          <div class="mp">
+            <span class="highlight g-head" style="text-transform: capitalize;">{{ plans.0.name }} Plan</span>
+            <span class="hype">Most popular</span>
+          </div>
+          <p class="g-p">Perfect For Scaling Your Video Advertising Campaigns</p>
+          <div class="price">
+            <span><span class="bold-size">${{ plans.0.price }}</span> <span class="font">/Month</span><span>
+              <br />
+              <span class="price-promo">Just ${{ plans.0.price_per_vsl }} Per VSL Upto 15 Slides</span>
+            </div>
+            <div class="benefits">
+              <img src="{% static 'assets/icons/check.svg' %}" alt="" />
+              <span class="benefits-text">Create Up To {{ plans.0.vsl_limit }} VSLs Per Month</span>
+            </div>
+
+            <a href="{% url 'accounts:upgrade_subscription' price_id=plans.0.stripe_price_id %}?success_path=/accounts/manage-subscription&cancel_path=/accounts/manage-subscription&user_url=/text/add-leads/{{text_file.id}}/"
+               class="p-button"
+               style="text-decoration: none">Get Started</a>
+          </div>
+          {% endif %}
+          <div class="p-cards-grid-item">
+
+            <span class="highlight g-head" style="text-transform: capitalize;">{{ plans.1.name }} Plan</span>
+            <p class="g-p">Ideal For High-Volume Marketers And Agencies</p>
+            <div class="price">
+              <span><span class="bold-size">${{ plans.1.price }}</span> <span class="font">/Month</span><span>
+                <br />
+                <span class="price-promo">Just ${{ plans.1.price_per_vsl }} Per VSL Unlimited Slides</span>
+              </div>
+              <div class="benefits">
+                <img src="{% static 'assets/icons/check.svg' %}" alt="" />
+                <span class="benefits-text">Create Up To {{ plans.1.vsl_limit }} VSLs Per Month</span>
+              </div>
+              
+                 <a href="{% url 'accounts:upgrade_subscription' price_id=plans.1.stripe_price_id %}?success_path=/accounts/manage-subscription&cancel_path=/accounts/manage-subscription&user_url=/text/add-leads/{{text_file.id}}"
+                    class="p-button"
+                    style="text-decoration: none">Get Started</a>
+
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+
+<script>
+  let edit=false
+
+    function showPopup() {
+  const popupContainer = document.querySelector('.plans-popup-container');
+  popupContainer.classList.remove('hidden');
+  document.body.classList.add('no-scroll');
+}
+
+function hidePopup() {
+  const popupContainer = document.querySelector('.plans-popup-container');
+  popupContainer.classList.add('hidden'); 
+  document.body.classList.remove('no-scroll'); 
+}
+
+document.querySelector('.close-popup img').addEventListener('click', hidePopup);
+
+</script>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+<script>
+  
+function savedInputChangeFunc(id) {
+    const inputFile=document.getElementById(`saved_slide_file_${id}`)
+    const fileName = inputFile.files.length > 0 ? inputFile.files[0].name.slice(20) : 'Choose file';
+    const element = document.getElementById(`current_${id}`);
+    if (element) {
+        element.style.display = 'none';
+        document.getElementById(`saved_span_${id}`).textContent = fileName;
+    } else {
+        console.error(`Element with ID current_${id} not found.`);
+    }
+}
+function showSuccessMessage(message) {
+    const successMessage = document.createElement('div');
+    successMessage.textContent = message;
+    successMessage.style.position = 'fixed';
+    successMessage.style.top = '20px';
+    successMessage.style.right = '20px';
+    successMessage.style.padding = '10px 15px';
+    successMessage.style.backgroundColor = '#4CAF50';
+    successMessage.style.color = 'white';
+    successMessage.style.borderRadius = '5px';
+    successMessage.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+    successMessage.style.zIndex = '1000';
+    
+    clearErrorMessages();
+
+    document.body.appendChild(successMessage);
+
+    setTimeout(() => {
+        document.body.removeChild(successMessage);
+    }, 2000);
+}
+
+let currentNumber = document.getElementById('no_of_slides').value
+function deleteSavedSlide(clipId,btn) {
+  if (btn.disabled){
+
+  }else{
+    btn.style.cursor='wait'
+    btn.disabled=true
+      btn.disabled=true
+          $.ajax({
+              url: '/text/delete-clip/' + clipId + '/', 
+              type: 'DELETE', 
+              headers: {
+                  'X-CSRFToken': '{{ csrf_token }}'
+              },
+              success: function(response) {
+                var row = btn.parentNode.parentNode;
+                row.parentNode.removeChild(row);
+                // document.getElementById(`tr_${clipId}`).style.display='none'
+    updateSubtitleNumbers(document.getElementById('leadsTable').getElementsByTagName('tbody')[0])
+
+              },
+              error: function(xhr, status, error) {
+                  alert("Error deleting music: " + error);
+              }
+          });
+      
+        }
+
+  }
+    
+function deleteSlide(btn) {
+    var row = btn.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+    edit=false
+
+    updateSubtitleNumbers(document.getElementById('leadsTable').getElementsByTagName('tbody')[0])
+}
+
+function addSlide() {
+  
+    let currentNumber = document.getElementById('no_of_slides').value;
+    if (currentNumber >0){
+      const slide_text_=document.getElementById(`slide_text_${currentNumber}`)
+      if (slide_text_){
+        if(slide_text_.style.display !='none'){
+          if (slide_text_.value === ''){
+            alert('Fill the Empty Text Area')
+            return
+          }else{
+            handleAutomateToHide(currentNumber)
+
+
+          }
+          
+        }
+
+      }
+    }
+  edit=true
+
+    var table = document.getElementById('leadsTable').getElementsByTagName('tbody')[0];
+    if (checkRowCount(table)){
+      var newRow = table.insertRow(-1);
+      var slideCell = newRow.insertCell(0);
+      currentNumber++;
+
+    document.getElementById('no_of_slides').value = currentNumber;
+    slideCell.innerText = `Subtitle ${currentNumber}`;
+    newRow.innerHTML += `
+        <td id="highlightable_${currentNumber}">
+          <div>
+            <textarea 
+                style="font-size: 19px;"
+                id="slide_text_${currentNumber}" 
+                type="text" 
+                name="slide_text" 
+                placeholder="Type Your Sentence Here" 
+                class="form-control tab-textarea" 
+                aria-describedby="textarea"
+            ></textarea>
+            <div class="wrapper" id="wrapper_${currentNumber}" style="display:none;">
+              <div style="width: 100%;" class="tag-box">
+                  <ul style="margin: 0;" id="list-of-tags_${currentNumber}" class="list-of-tags">
+                      <span id="slide_span_${currentNumber}"></span>
+                  </ul>
+                  <input id="remaining_${currentNumber}" name="remaining_" hidden type="text">
+              </div>
+              
+              </div>
+              <div id="error-message_${currentNumber}" style="text-transform: capitalize;" class="error-message"></div>
+          </div>
+        </td>
+        <td id="action_${currentNumber}">
+            <a href="#!" class="delete-row-btn" id="delete_${currentNumber}" onclick="deleteSlide(this)">
+              <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
+            </a>
+            <a href="#!"  
+               class="delete-row-btn" 
+               id="edit_${currentNumber}" 
+               style="display:none;" 
+               onclick="EditeSlide(${currentNumber})">
+              <img src="{% static 'lead-maker/images/edit-button-svgrepo-com.svg' %}" alt="edit" />
+            </a>
+
+            <a href="#!" 
+               style="display:none; " 
+               class="delete-row-btn" 
+               id="reset_${currentNumber}" 
+               >
+              <img src="{% static 'lead-maker/images/reset-svgrepo-com.svg' %}" alt="reset" />
+            </a>
+        </td>`;
+        document.getElementById(`slide_text_${currentNumber}`).focus()
+    setTimeout(() => {
+        handleEnterToHide(currentNumber,);
+        handleSelection(currentNumber);
+        updateSubtitleNumbers(table)
+    }, 0); 
+}
+}
+function checkRowCount(tableBody) {
+    var rowCount = tableBody.rows.length;
+    const userPlan = "{{user.subscription.plan.name}}".toLowerCase(); // Convert to lowercase
+    const unlimitedPlans = ['premium','admin']; // Plans should also be lowercase for comparison
+    console.log(userPlan);
+
+    // Check if userPlan is not in unlimitedPlans
+    if (rowCount >= 15 && !unlimitedPlans.includes(userPlan)) {
+        console.log("Row count exceeded 15!");
+        alert("Your Current Package Only Allows You To Add 15 Slide Please Upgrade To Unlock Unlimited Slides");
+        showPopup()
+        return false;
+    } else {
+        return true;
+    }
+}
+function updateSubtitleNumbers(tableBody) {
+    for (let i = 0; i < tableBody.rows.length; i++) {
+        tableBody.rows[i].cells[0].textContent = `Subtitle ${i + 1}`;
+    }
+}
+
+
+</script>
+<script>
+
+
+  function handleAutomateToHide(currentNumber) {
+    edit = false;
+    const textarea = document.getElementById(`slide_text_${currentNumber}`);
+    const wrapper = document.getElementById(`wrapper_${currentNumber}`);
+    const slide_span = document.getElementById(`slide_span_${currentNumber}`);
+    const edit_ = document.getElementById(`edit_${currentNumber}`);
+    const delete_ = document.getElementById(`delete_${currentNumber}`);
+    const reset_ = document.getElementById(`reset_${currentNumber}`);
+    let clip_id = slide_span.dataset.id;
+
+    if (textarea.value) {
+        
+
+        const payload = JSON.stringify({
+            text: textarea.value, // Send the textarea value
+        });
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.addEventListener('load', function () {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (!response.new){
+                          if (response.changed){
+                            slide_span.textContent = textarea.value;
+                            deleteAllLi(currentNumber)
+
+                          }
+                            textarea.style.display = 'none';
+                            wrapper.style.display = 'flex';
+                            edit_.style.display = 'flex';
+                        }
+                        else{
+                          textarea.style.display = 'none';
+                          wrapper.style.display = 'flex';
+                          edit_.style.display = 'flex';
+                          slide_span.textContent = textarea.value;
+                        }
+                if (response.success) {
+                    slide_span.dataset.id = response.id;
+                    clip_id = response.id;
+
+                    if (reset_) {
+                        reset_.onclick = function () {
+                            subclipReset(clip_id);
+                        };
+                        reset_.style.display = 'flex';
+                        delete_.onclick = function () {
+                            deleteSavedSlide(clip_id, delete_);
+                        };
+                        console.log(delete_);
+                    }
+
+                    showSuccessMessage(`Subtitle submitted successfully!`);
+                } else {
+                    alert(response.error || 'Failed to submit the text.');
+                }
+            } else {
+                alert('An error occurred while submitting the text.');
+            }
+        });
+
+        xhr.addEventListener('error', function () {
+            alert('An error occurred during the request.');
+        });
+
+        if (clip_id) {
+            xhr.open('POST', `/text/edit_text_clip_line/${clip_id}/`);
+        } else {
+            xhr.open('POST', `/text/add_text_clip_line/{{text_file.id}}/`);
+        }
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+        xhr.send(payload);
+    }
+}
+
+function subclipReset(mainId) {
+        
+            const textfileID = "{{textfile.id}}"
+            const url = `/text/reset_subclip/${mainId}/`;
+
+            if (confirm("Are You Sure You Want To Reset This Sentence?")) {
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ textfile_id: textfileID })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert("Failed to reset the clip. Please try again.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error resetting clip:", error);
+                        alert("An error occurred. Please try again later.");
+                    });
+            }
+        }
+        function deleteAllLi(cNumber) {
+  const ul = document.getElementById(`list-of-tags_${cNumber}`); // Get the <ul> element by ID
+  if (ul) {
+    // Select all <li> elements within the <ul>
+    const liElements = ul.querySelectorAll("li");
+    
+    // Loop through the <li> elements and remove each one
+    liElements.forEach(li => li.remove());
+  } else {
+    console.error("Element with ID 'list-of-tags' not found.");
+  }
+}
+
+function handleEnterToHide(currentNumber,) {
+  edit =false
+    const textarea = document.getElementById(`slide_text_${currentNumber}`);
+    
+    const wrapper = document.getElementById(`wrapper_${currentNumber}`);
+    const slide_span = document.getElementById(`slide_span_${currentNumber}`);
+    const edit_ = document.getElementById(`edit_${currentNumber}`);
+    const delete_ = document.getElementById(`delete_${currentNumber}`);
+    const reset_ = document.getElementById(`reset_${currentNumber}`);
+    let clip_id=slide_span.dataset.id
+    textarea.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+
+            if (textarea.value) {
+                
+                const payload = JSON.stringify({
+                    text: textarea.value, // Send the textarea value
+                });
+
+                const xhr = new XMLHttpRequest();
+                xhr.addEventListener('load', function () {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        if (!response.new){
+                          if (response.changed){
+                            slide_span.textContent = textarea.value;
+                            deleteAllLi(currentNumber)
+
+                          }
+                            textarea.style.display = 'none';
+                            wrapper.style.display = 'flex';
+                            edit_.style.display = 'flex';
+                        }
+                        else{
+                          textarea.style.display = 'none';
+                          wrapper.style.display = 'flex';
+                          edit_.style.display = 'flex';
+                          slide_span.textContent = textarea.value;
+                        }
+                        if (response.success) {
+                            slide_span.dataset.id=response.id
+                            clip_id=response.id
+                            if (reset_){
+                              reset_.onclick= function () {
+                                subclipReset(clip_id);
+                              };
+                              reset_.style.display='flex'
+                              delete_.onclick=function () {
+                                deleteSavedSlide(clip_id,delete_);
+
+                            };
+                          };
+
+                            showSuccessMessage(`Subtitle submitted successfully!`);
+
+                        } else {
+                            alert(response.error || 'Failed to submit the text.');
+                        }
+                    } else {
+                        alert('An error occurred while submitting the text.');
+                    }
+                });
+
+                xhr.addEventListener('error', function () {
+                    alert('An error occurred during the request.');
+                });
+                if (clip_id){
+                  
+                  xhr.open('POST', `/text/edit_text_clip_line/${clip_id}/`);
+                }else{
+                  
+                  xhr.open('POST', `/text/add_text_clip_line/{{text_file.id}}/`);
+                }
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                xhr.send(payload);
+            }
+        }
+    });
+}
+
+  function EditeSlide(currentNumber) {
+    edit=true
+    const textarea = document.getElementById(`slide_text_${currentNumber}`);
+    const wrapper=document.getElementById(`wrapper_${currentNumber}`);
+    const slide_span=document.getElementById(`slide_span_${currentNumber}`);
+    const edit_=document.getElementById(`edit_${currentNumber}`);
+    const delete_=document.getElementById(`edit_${currentNumber}`);
+    textarea.style.display = 'flex';
+        wrapper.style.display='flex'
+        // delete_.style.display = 'none';
+        edit_.style.display='none'
+        wrapper.style.display='none'
+
+        
+      };
+  
+document.addEventListener('DOMContentLoaded',()=>{
+  if (document.getElementById('no_of_slides').value == 0){
+    addSlide()
+  }else{
+    for (let index = 1; index <= document.getElementById('no_of_slides').value; index++) {
+      handleEnterToHide(index);  
+      handleSelection(index); 
+    }
+  }
+})
+function clearErrorMessages(){
+        const errorElements = document.querySelectorAll('[id^="error"]');
+        errorElements.forEach(element => {
+            element.textContent = "";
+        });
+      }
+</script>
+<!-- subclip  -->
+<script>
+    async function fetchNoSubclipIds() {
+        try {
+            textfileId = "{{text_file.id}}"
+            const url = `/text/check_text_clip/${textfileId}/`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const idsOfNoSubclip = await response.json();
+
+            console.log('IDs of clips with no subclips:', idsOfNoSubclip);
+
+            return idsOfNoSubclip;
+        } catch (error) {
+            console.error('Error fetching no subclip IDs:', error);
+        }
+    }
+    function highlightNoSubclipIcons(button) {
+    const tagBoxes = document.querySelectorAll('.tag-box');
+    const spanIds = [];
+    tagBoxes.forEach(tagBox => {
+        const span = tagBox.querySelector('ul span');
+
+        if (span && span.dataset.id) {
+            spanIds.push(Number(span.dataset.id)); 
+        }
+    });
+
+    console.log(spanIds)
+    if (areAllTextareasHidden()){
+    fetchNoSubclipIds().then((ids) => {
+        if (Array.isArray(ids) && ids.length > 0) {
+            ids.forEach((id) => {
+                if (spanIds.includes(id)) {
+                    console.log(`ID matched: ${id}`);
+                    const matchingTagBox = Array.from(tagBoxes).find(tagBox => 
+                        Number(tagBox.querySelector('ul span')?.dataset.id) === Number(id)
+                    );
+                    const matchingSpan=matchingTagBox.querySelector('ul span')
+                    if (matchingSpan) {
+                        // matchingSpan.style.color='red'
+                        console.log(matchingSpan.id.split('_').pop())
+                        const errorMessage=document.getElementById(`error-message_${matchingSpan.id.split('_').pop()}`);
+                        if (errorMessage){
+                          console.log(errorMessage)
+                          if (matchingSpan.textContent.trim() === ''){
+                            errorMessage.textContent='Please Wait For Clip To Process'
+
+                          }else{
+                            errorMessage.textContent='Assign Clips To All Of The Subtitle Text'
+
+                          }
+                        }
+                    }
+                }
+            });
+        } else {
+            const form = document.getElementById('lead-form');
+            if (form) {
+                // Uncomment the line below if the button needs to be disabled
+                // button.disabled = true
+
+                form.submit();
+            } else {
+                console.error("Form with ID 'processFile' not found.");
+            }
+        }
+    }).catch((error) => {
+        console.error("Error fetching no subclip IDs:", error);
+    });
+  }else{
+    alert('You Need To Save or Delete The Current Text')
+  }
+
+}
+function areAllTextareasHidden() {
+  // Select all textarea elements
+  const textareas = document.querySelectorAll('textarea');
+
+  // Loop through each textarea
+  for (const textarea of textareas) {
+    // Get the computed style of the textarea
+    const style = window.getComputedStyle(textarea);
+
+    // If any textarea's display is not 'none', return false
+    if (style.display !== 'none') {
+      return false;
+    }
+  }
+
+  // If the loop completes, all textareas are hidden
+  return true;
+}
+
+// Example usage
+if (areAllTextareasHidden()) {
+  console.log("All textareas are hidden.");
+} else {
+  console.log("At least one textarea is visible.");
+}
+
+    function closeModal() {
+      clearErrorMessages();
+        document.getElementById('add-subclip-popup').style.display = 'none';
+        
+        const formClipID = document.getElementById('clipId').value;
+        const ulElement = document.getElementById(`list-of-tags_${formClipID}`);
+        const spanElement = document.getElementById(`slide_span_${formClipID}`);
+        const liItem=document.getElementById(`saved_li_${formClipID}`);
+        if (ulElement && ulElement.children.length > 1) {
+            const secondToLastLi = ulElement.children[ulElement.children.length - 2];
+            const secondToLastLiText = secondToLastLi.textContent;
+
+            const spanText = spanElement.textContent.trim();
+            spanElement.textContent = `${secondToLastLiText} ${spanText}`
+            console.log("Last <li> text:", secondToLastLiText);
+
+            ulElement.removeChild(secondToLastLi);
+        } else if(liItem){
+            liItem.disabled=false
+            liItem.style.cursor='pointer'
+
+        }else {
+            console.log("No <li> items found to remove.");
+        }
+    }
+
+function handleSelection(cNumber) {
+              const wrapper = document.querySelector(`#wrapper_${cNumber}`);
+                const span = wrapper.querySelector("span");
+                const ul = wrapper.querySelector(`#list-of-tags_${cNumber}`);
+                const remainingInput = wrapper.querySelector(`#remaining_${cNumber}`);
+                const errorMessage =document.querySelector(`#error-message_${cNumber}`);
+                // submitCheck=true
+
+                document.getElementById(`highlightable_${cNumber}`).addEventListener("mouseup", function () {
+                  const selection = window.getSelection();
+                  clip_Id=span.dataset.id
+                  console.log('clipid: ',clip_Id)
+                  if (document.getElementById(`slide_text_${cNumber}`).style.display === 'none'){
+
+                    if (selection && selection.toString().trim() ) {
+                        const selectedText = selection.toString().trim();
+                        const fullText = span.innerText.trim();
+                        const words = fullText.split(/\s+/);
+                        const selectedWords = selectedText.split(/\s+/);
+        
+                        const startsCorrectly = fullText.startsWith(selectedText);
+                        const isWordAligned = selectedWords.every(word => words.includes(word));
+        
+                        if (startsCorrectly && isWordAligned) {
+                            errorMessage.innerText = "";
+        
+                            const li = document.createElement("li");
+                            li.innerText = selectedText;
+                            li.dataset.id = cNumber;
+                            li.disabled=true
+                            li.onclick = function () {
+                                    editCurrentLi(li);
+                                };
+                                num = span.dataset.num
+                                li.id=`current_li_${cNumber}`
+        
+                            ul.insertBefore(li, span);
+        
+                            const remainingText = fullText.slice(selectedText.length).trim();
+                            remainingInput.value = remainingText;
+                            span.innerText = remainingText;
+                            openPopup(cNumber, selectedText, remainingText,clip_Id);
+                            li.style.cursor='wait'
+        
+                            
+        
+        
+                        } else {
+                            // errorMessage.innerText = "Invalid highlighting. Highlight full words starting from the beginning.";
+                            errorMessage.innerText = "Highlighting Must Start From The First Unassigned Word Of The Sentence.";
+                        }
+                    }
+        
+                    selection.removeAllRanges();
+                  }else{
+                    
+                  }
+        });
+    }
+    
+    function openPopup(cNumber, selectedText, remainingText,clip_Id) {
+    const modalContainer = document.getElementById('modal-cont');
+    const popup = document.getElementById('add-subclip-popup');
+    clearErrorMessages();
+    if (modalContainer && popup) {
+        modalContainer.innerHTML=`
+        
+<form   class="popup-content" method="POST" enctype="multipart/form-data"
+ id="add-subclip-form"
+ 
+    style="grid-template-columns:  1fr;width:100%;">
+    <br>
+    {% csrf_token %}
+
+    <div id="submit-cont">
+        <div class="form-group">
+            <input id="slide_text" hidden  name="slide_text" value="${selectedText}" readonly required class="form-input">
+        </div>
+        
+        <input id="clipId" type="number" hidden name="clipId" value="${cNumber}">
+        
+
+        <input type="text" value="${remainingText}" hidden id="remaining" name="remaining">
+        <div style="display: grid;grid-template-columns: 1fr;border-radius: 8px;border: 1px solid #00000080;overflow: hidden;"  class="form-grid-cont">
+        <div class="grid-item title  form-grid-item begin column-1"><span style="height:50px;align-items: center;color:white;">Upload Scene</span></div>
+        <div class="form-grid-item main-item">
+            <div  class="form-group" style="height:100%;">
+                <div class="upload-container">
+                <label for="slide_file" class="upload-label">
+                    <i class="ri-upload-line"></i>
+                    <span id="upload-text">Choose File</span>
+                    </label>
+                    <i id="clear-file" style="display:none" onclick="clearFileInput()" class="ri-close-circle-line"></i>
+                <input type="file" onchange="saveInput(this)" id="slide_file" name="slide_file" class="upload-input" accept="video/*">
+
+            </div>
+            
+            <p id="currentFile"></p>
+        
+        </div>
+        </div>
+         <p style="color:red; font-size:13px;" id="error-slide"></p>
+        </div>
+        </div>
+    </div>
+    </div>
+    <div style="align-items: end;" class="form-group">
+        <button type="submit" id="submit-clip" class="submit-btn">Submit</button>
+    </div>
+</form>
+        `;
+        const errorElements = document.querySelectorAll('[id^="error"]');
+
+        errorElements.forEach(element => {
+            element.textContent = "";
+        });
+        };
+        
+        popup.style.display = 'flex';
+        document.getElementById(`add-subclip-form`).addEventListener('submit', (e) => {
+            e.preventDefault();
+            attachValidation(`add-subclip-form`, cNumber,clip_Id);
+        })
+    }
+
+    function editCurrentLi(liItem) {  
+        if (liItem.disabled){
+
+        }else{
+            liItem.disabled=true
+            liItem.style.cursor = 'wait';
+
+        console.log(liItem)
+        id=liItem.dataset.id;
+        text= liItem.textContent
+        const modalContainer =document.getElementById('modal-cont')
+        const popup= document.getElementById('add-subclip-popup')
+
+        if (modalContainer && popup) {
+        modalContainer.innerHTML=`
+<form   class="popup-content" method="POST" enctype="multipart/form-data"
+ id="edit-subclip-form"
+ 
+    style="grid-template-columns: 1fr;width:100%;">
+    <br>
+    {% csrf_token %}
+
+    <div id="submit-cont">
+        <div class="form-group">
+            <input id="slide_text" hidden  name="slide_text" value="some text" readonly required class="form-input">
+        </div>
+        
+        <input id="clipId" type="number" hidden name="clipId" value="${liItem.dataset.id}">
+        
+
+        <input type="text" value="some text" hidden id="remaining" name="remaining">
+        <div style="display: grid;grid-template-columns:  1fr;border-radius: 8px;border: 1px solid #00000080;overflow: hidden;"  class="form-grid-cont">
+        <div class="grid-item title  form-grid-item begin column-1"><span style="height:50px;align-items: center;color:white">Upload Scene</span></div>
+          <div class="form-grid-item main-item">
+              <div  class="form-group" style="height:100%;">
+                  <div class="upload-container">
+                  <label for="slide_file" class="upload-label">
+                      <i class="ri-upload-line"></i>
+                      <span id="upload-text">Choose File</span>
+                      </label>
+                      <i id="clear-file" style="display:none" onclick="clearFileInput()" class="ri-close-circle-line"></i>
+                  <input type="file" onchange="saveInput(this)" id="slide_file" name="slide_file" class="upload-input" accept="video/*">
+
+              </div>
+              
+              <p id="currentFile"></p>
+          </div>
+        </div>
+    </div>
+    <div style="align-items: end;" class="form-group">
+        <button type="submit" id="submit-clip" class="submit-btn">Submit</button>
+    </div>
+</form>`;
+    }
+    popup.style.display='flex'
+    const current_=document.getElementById('currentFile')
+    if (liItem.dataset.current_file ){
+
+      document.getElementById('currentFile').innerHTML= `Current File: ${liItem.dataset.current_file} 
+                    <i id="clearCurrentFile" style="font-size:large;"  onclick="clearCurrentFile()" class="ri-close-circle-line"></i>
+        
+        `
+
+    }
+    document.getElementById('edit-subclip-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+    editAttachValidation('edit-subclip-form', id,`/text/edit_subcliphtmx/${liItem.dataset.id}/`,liItem);
+    });
+
+
+        }
+    }
+
+</script>
+
+<!-- popup manipulation and submission/validation -->
+ <script>
+  
+function clearFileInput(){
+    document.getElementById('slide_file').value=''
+    document.getElementById('clear-file').style.display='none'
+    document.getElementById('upload-text').textContent='Choose File'
+
+
+}
+  function clearCurrentFile(){
+    document.getElementById('currentFile').innerHTML=''
+}
+  function editAttachValidation(formId, clipId,getUrl,li) {
+    
+    if (li) {
+        li.disabled = true;
+        console.log(li.dataset.id, ' has been disabled');
+    }
+
+    const form = document.getElementById(formId);
+
+    if (form) {
+        const fileInput = document.getElementById('slide_file');
+        const videoSelect = document.getElementById('videoSelect');
+
+        if (!fileInput.value || fileInput.value.trim() === "") 
+           {
+             document.getElementById('upload-text').style.color='red'
+        } else {
+            document.getElementById('upload-text').style.color='black'
+
+            const popup = document.getElementById('add-subclip-popup');
+            if (popup) popup.style.display = 'none';
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+
+            xhr.addEventListener('load', function () {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+
+                    if (response.success) {
+                        const newId = response.id;
+
+                        if (li) {
+                            
+                            li.dataset.id = newId;
+                            li.dataset.current_file=response.current_file
+                            li.disabled = false;
+                            li.style.cursor = 'pointer';
+                        
+                        }
+                        showSuccessMessage('Clip Updated Successfully!')
+                    } else {
+                        alert(response.error || 'Failed to add clip.');
+                    }
+                } else {
+                    alert('An error occurred while saving the clip.');
+                }
+
+                if (li) {
+                    li.disabled = false;
+                    li.style.cursor = 'pointer';
+                }
+            });
+
+            // Handle errors
+            xhr.addEventListener('error', function () {
+                alert('An error occurred during the request.');
+                if (li) {
+                    li.disabled = false;
+                    li.style.cursor = 'pointer';
+                }
+            });
+
+            // Open and send the request
+            xhr.open('POST',getUrl);
+            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+            xhr.send(formData);
+        }
+    }
+}
+  function attachValidation(formId, cNumber,clipId) {
+    const li = document.getElementById(`current_li_${cNumber}`);
+    if (li) {
+        li.disabled = true;
+        li.style.cursor = 'wait';
+        console.log(li, ' has been disabled');
+    }
+
+    const form = document.getElementById(formId);
+
+    if (form) {
+        const fileInput = document.getElementById('slide_file');
+
+        if (!fileInput.value || fileInput.value.trim() === ""){
+                document.getElementById('upload-text').style.color='red'
+            }
+
+         else {
+            document.getElementById('upload-text').style.color='inherit'
+            
+            const popup = document.getElementById('add-subclip-popup');
+            if (popup) {popup.style.display = 'none';}
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+
+            xhr.addEventListener('load', function () {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+
+                    if (response.success) {
+                        const newId = response.id;
+
+
+                        // Update the li element
+                        if (li) {
+                            li.id = `saved_li_${newId}`;
+                            li.dataset.id = newId;
+                
+                            li.dataset.current_file=response.current_file
+                            li.disabled = false;
+                            li.style.cursor = 'pointer';
+                        }
+                        
+            
+                        showSuccessMessage('Clip Added Successfully!');
+                    } else {
+                        alert(response.error || 'Failed to add clip.');
+                    }
+                } else {
+                    alert('An error occurred while saving the clip.');
+                }
+
+                if (li) {
+                    li.disabled = false;
+                    li.style.cursor = 'pointer';
+                }
+            });
+
+            // Handle errors
+            xhr.addEventListener('error', function () {
+                alert('An error occurred during the request.');
+                if (li) {
+                    li.disabled = false;
+                    li.style.cursor = 'pointer';
+                }
+            });
+
+            // Open and send the request
+            xhr.open('POST', `/text/add_subcliphtmx/${clipId}/`);
+            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+            xhr.send(formData);
+        }
+    }}
+  function saveInput(inputElement) {
+            const uploadElement = document.getElementById('upload-text');
+
+            if (inputElement.type === 'file') {
+
+                if (inputElement.value) {
+                document.getElementById('upload-text').style.color='black'
+
+                    
+                    const fileName = inputElement.files.length > 0 ? inputElement.files[0].name : "Choode File";
+                    uploadElement.textContent=fileName.slice(0,13)
+                    document.getElementById('currentFile').textContent = ''
+                    document.getElementById('clear-file').style.display='flex'
+                    
+                  }else{
+                  uploadElement.textContent= "Choode File"
+                  // document.getElementById('currentFile').textContent = ''
+                  document.getElementById('clear-file').style.display='none'
+
+                }
+
+            }
+            
+        };
+    
+ </script>
+{% endblock content %}

@@ -1,0 +1,624 @@
+{% extends 'lead-maker/accounts/base.html' %} {% block content %} {% load static %} 
+
+{% include "lead-maker/accounts/new_messages.html" %}
+{% include "lead-maker/includes/header.html" %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.min.css">
+
+<style>
+    .video-place {
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  height: 100%; 
+  width: 100%; 
+  margin: 0 auto;
+  text-align: center;
+}
+
+</style>
+<div class="content contain">
+  <section class="login-sec voice-subtitle">
+    <div class="container">
+      <ul class="status-bar">
+        <li class="active loading loaded">
+          <a href="#!">Upload & Customise</a>
+        </li>
+        <li class="active loading loaded" >
+          <a href="#!">Video Trimming</a>
+        </li>
+        <li class="active loading loaded">
+          <a href="#!">Lead Creation</a>
+        </li>
+        <li class="active">
+          <a href="#!">Background Music Selection</a>
+        </li>
+        <li class="">
+          <a href="#!">Download</a>
+        </li>
+      </ul>
+      <div class="lead-container">
+        <div style="display: flex;margin-bottom: 40px; justify-content: center; align-items: center; height: 100%; width: 100%;">
+          <a href="/text/add-leads/{{textfile.id}}"
+             style="display: flex;
+                    border: 1px solid #0e44ff;
+                    box-sizing: border-box;
+                    align-items: center;
+                    justify-content: center;
+                    text-decoration: none;
+                    background: white;
+                    border-radius: 8px;
+                    font-family: Montserrat;
+                    font-size: 18px;
+                    font-weight: 500;
+                    line-height: 21.94px;
+                    color: #0e44ff;
+                    padding: 5px 24px;
+                    width: 80%;
+                    margin: auto;">
+              <span style="line-height: 24px;">Go Back To Change Scenes</span>
+          </a>
+      </div>
+        <div class="lead-header">
+
+          <!-- <a href="/text/add-leads/{{textfile.id}}" class="lead-back">
+            <img src="{% static 'lead-maker/images/left-arrow.svg' %}" alt="back" class="img-fluid" />
+          </a> -->
+          <h5 class="text-center lead-title"> Select Your Background Music </h5>
+        </div>
+
+        <figure class="video-place" style="background-color: white;" >
+          <div class="video-container">
+            <video id="video" height="400" controls>
+              <source src="{{textfile.generated_watermarked_video.url}}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </figure>
+            <!-- <div class="video-container">
+              <video width="100%" height="400" controls>
+                <source src="{{textfile.generated_watermarked_video.url}}" type="video/mp4" /> Your browser does not support the video tag.
+              </video>
+            </div>  -->
+
+        <form class="lead-form"id="lead-form"  method="POST" action="."  enctype="multipart/form-data">
+          {% csrf_token %}
+          <div id="repeatable-block">
+            {% if textfile.background_musics.all %}
+            <input type="number" hidden name="no_of_mp3" id="no_of_mp3" value="{{n_musics}}">
+            {% for  music in musics %}
+            <div id="upload">
+              <a href="#!" class="delete-music" onclick="deleteMusicButton('{{music.id}}')" style="padding: 10px 10px; border: 1px solid #3663ff; text-align: right;" >Delete</a>
+
+            </div>
+            <div class="browse-field">
+              <div style="
+                      justify-content: space-between;
+                      width: 100%;
+                      display: flex;
+                    ">
+        
+
+                <label for="formFileLg" class="label-txt" id="musicLabel-{{ forloop.counter}}" style="padding-top: 10px">Upload MP3 {{ forloop.counter}}:</label>
+              </div>
+            <p style="font-size: 10px; font-family: 'Montserrat'; display: flex; position: relative; top: 55%;left: 0;" id="mp3_{{ forloop.counter }}_current">Current: {{ music.get_music_file_name}}</p>                          
+
+              <br />
+              <div class="custum-browse custum-browse-v2 d-flex align-items-center">
+                <div class="brws">
+                  <input class="br-input fileInput"  name="saved-mp3-{{music.id}}" id="mp3-{{textfile.id}}-{{ forloop.counter}}" type="file" accept=".mp3" />
+                  <a href="#!" class="btn get-start browse-btn">
+                    <img src="{% static 'lead-maker/images/upload-icn-black.svg' %}" alt="" />Choose file </a>
+                </div>
+                <p id="uploadText-{{ forloop.counter}}" style="color: inherit;"></p>
+                <i id="clear-file-{{ forloop.counter}}" style="display:none" onclick="clearFileInput('{{ forloop.counter}}')" class="ri-close-circle-line"></i>
+              </div>
+            </div>
+            
+            <br />
+            <div class="browse-field">
+              <div>
+                <div class="fontSize-Container">
+                  <label for="slide-1"  class="label-txt" style="font-weight: bold">MP3 {{ forloop.counter}} Volume:</label>
+                  <div class="slider-value" min id="valueLabel-{{ forloop.counter}}">20%</div>
+                  <input onchange="saveInput(this)" class="slider-value-input" id="valuescrollId-{{textfile.id}}-{{ forloop.counter}}"  name="saved-volume-{{music.id}}" type="number" value="20" hidden />
+                </div>
+                <div class="slider-container">
+                  <div class="slider-track">
+                    <div class="slider-filled" id="slider-filled-{{ forloop.counter}}"></div>
+                  </div>
+                  <div class="slider-thumb" id="sliderThumb-{{ forloop.counter}}"></div>
+                </div>
+              </div>
+            </div>
+            <br />
+            <div class="browse-field" style="margin-bottom: 5px">
+              <label for="exampleInput" class="label-txt">What Second Should This MP3 Play? <small>in minutes</small>
+              </label>
+            </div>
+            <div class="time-fld d-flex justify-content-between align-items-start">
+              <div class="browse-field">
+                <label for="starts{{textfile.id}}-1"  class="label-txt">Start:</label>
+                <input onchange="saveInput(this)" type="text" name="saved-starts-{{music.id}}" placeholder="00:00" class="form-control" id="starts-{{textfile.id}}-{{forloop.counter}}" aria-describedby="emailHelp" />
+              </div>
+              <div class="browse-field">
+                <label for="ends-{{textfile.id}}-1" class="label-txt">End:</label>
+                <input type="text" onchange="saveInput(this)"  name="saved-ends-{{music.id}}" placeholder="00:00" class="form-control"id="ends-{{textfile.id}}-{{ forloop.counter}}"  aria-describedby="emailHelp" />
+              </div>
+            </div>
+
+
+            {% endfor %}
+        
+            {% else %}
+            <div class="browse-field">
+              <div style="
+                      justify-content: space-between;
+                      width: 100%;
+                      display: flex;
+                    ">
+        
+
+                <label for="formFileLg" class="label-txt" id="musicLabel-1" style="padding-top: 10px">Upload MP3 1:</label>
+              </div>
+              <br />
+              <div class="custum-browse custum-browse-v2 d-flex align-items-center">
+                <div class="brws">
+                  <input class="br-input fileInput"  name="mp3-1" id="mp3-{{textfile.id}}-1" type="file" accept=".mp3" />
+                  <a href="#!" class="btn get-start browse-btn">
+                    <img src="{% static 'lead-maker/images/upload-icn-black.svg' %}" alt="" />Choose file </a>
+                    
+                  </div>
+                  <p id="uploadText-1" style="color: inherit;"></p>
+                  <i id="clear-file-1" style="display:none" onclick="clearFileInput('1')" class="ri-close-circle-line"></i>
+              </div>
+            </div>
+
+            
+            <br />
+            <div class="browse-field">
+              <div>
+                <div class="fontSize-Container">
+                  <label for="slide-1"  class="label-txt" style="font-weight: bold">MP3 1 Volume:</label>
+                  <div class="slider-value" min id="valueLabel-1">20%</div>
+                  <input onchange="saveInput(this)" class="slider-value-input" id="valuescrollId-{{textfile.id}}-1"  name="volume-1" type="number" value="20" hidden />
+                </div>
+                <div class="slider-container">
+                  <div class="slider-track">
+                    <div class="slider-filled" id="slider-filled-1"></div>
+                  </div>
+                  <div class="slider-thumb" id="sliderThumb-1"></div>
+                </div>
+              </div>
+            </div>
+            <br />
+            <div class="browse-field" style="margin-bottom: 5px">
+              <label for="exampleInput" class="label-txt">What Second Should This MP3 Play? <small>in minutes</small>
+              </label>
+            </div>
+            <div class="time-fld d-flex justify-content-between align-items-start">
+              <div class="browse-field">
+                <label for="starts{{textfile.id}}-1"  class="label-txt">Start:</label>
+                <input onchange="saveInput(this)" type="text" name="starts-1" placeholder="00:00" class="form-control" id="starts-{{textfile.id}}-1" aria-describedby="emailHelp" />
+              </div>
+              <div class="browse-field">
+                <label for="ends-{{textfile.id}}-1" class="label-txt">End:</label>
+                <input type="text" onchange="saveInput(this)"  name="ends-1" placeholder="00:00" class="form-control"id="ends-{{textfile.id}}-1"  aria-describedby="emailHelp" />
+              </div>
+            </div>
+
+            <input type="number" hidden name="no_of_mp3" id="no_of_mp3" value="1">
+            {% endif %}
+          </div>
+        
+          <div id="repeatable-blk"></div>
+          <div class="d-flex justify-content-start" style="margin-top: 30px">
+            <a href="#!" id="addMoreBtn" class="btn proceed-btn"> + Upload Another MP3 </a>
+          </div>
+          <div class="create-video d-flex justify-content-end" >
+            {% if textfile.background_musics.all %}
+
+            <button  type="submit"id="submit_form" class="btn proceed-btn"> Create New Video <img class="btn-arrow" src="{% static 'lead-maker/images/btn-arrow.svg' %}" alt="arrow" />
+            </button>
+            <a   id="proceed" href="{% url 'video_text:download_video' textfile_id %}?bg_music=false" style="display: none;" class="btn proceed-btn"> Proceed Without Background Music <img class="btn-arrow" src="{% static 'lead-maker/images/btn-arrow.svg' %}" alt="arrow" />
+            </a>
+            {%else %}
+            <button  type="submit"id="submit_form" style="display: none;" class="btn proceed-btn"> Create New Video <img class="btn-arrow" src="{% static 'lead-maker/images/btn-arrow.svg' %}" alt="arrow" />
+            </button>
+            <a href="{% url 'video_text:download_video' textfile_id %}?bg_music=false"   id="proceed"  class="btn proceed-btn"> Proceed Without Background Music <img class="btn-arrow" src="{% static 'lead-maker/images/btn-arrow.svg' %}" alt="arrow" />
+            </a>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="content load" style="display: none">
+  <section class="login-sec voice-subtitle">
+    <div class="container">
+      <ul class="status-bar">
+        <li class="active loading loaded">
+          <a href="#!">Upload & Customise</a>
+        </li>
+        <li class="active loading">
+          <a href="#!">Lead Creation</a>
+        </li>
+        <li>
+          <a href="#!">Background Music Selection</a>
+        </li>
+        <li>
+          <a href="#!">Download</a>
+        </li>
+      </ul>
+      <div class="lead-container loading-block">
+        <h5 class="text-center lead-title"> Loading <span class="dots">.</span>
+        </h5>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const textFileId="{{textfile.id}}"
+  const n_musics= document.getElementById('no_of_mp3')
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+<!-- <script src="{% static 'lead-maker/js/music.js' %}" defer></script>undefined</body>undefined</html>  -->
+
+
+
+<script>
+  textFileId
+  function clearFileInput(cNumber){
+    document.getElementById(`mp3-${textFileId}-${cNumber}`).value=''
+    document.getElementById(`clear-file-${cNumber}`).style.display='none'
+    document.getElementById(`uploadText-${cNumber}`).textContent='Choose File'
+
+
+}
+const evt1 = document.getElementById("addMoreBtn");
+const inputs = document.querySelectorAll('.fileInput');
+const submitForm = document.getElementById('submit_form');
+const proceed = document.getElementById('proceed');
+
+evt1?.addEventListener("click", function (e) {
+  e.preventDefault();
+// let currentNumber = n_musics.value;
+let currentNumber = n_musics.value;
+
+  currentNumber++
+  n_musics.value=currentNumber
+  const sectionContainer = document.getElementById("repeatable-block");
+  const newSection = document.createElement("div");
+  newSection.id=`upload-${currentNumber}`
+  newSection.classList.add("section");
+
+  // Create a new section for the MP3 upload
+  const newSection1 = document.createElement("div");
+  newSection1.classList.add("browse-field");
+  
+  // Use the counter to create unique IDs for the slider components
+  const sliderId = `slider-${currentNumber}`;
+  const sliderFilledId = `slider-filled-${currentNumber}`;
+  const sliderThumbId = `sliderThumb-${currentNumber}`;
+  const valueLabelId = `valueLabel-${currentNumber}`;
+  const valuescrollId=`valuescrollId-${textFileId}-${currentNumber}`
+
+  newSection1.innerHTML = `
+    <div class="col-md-12" style="justify-content: space-between; display: flex; margin-top: 40px;">
+      <label for="formFileLg" class="label-txt" style="padding-top: 5px;">Upload MP3 ${currentNumber}:</label>
+      <a href="#!" class="delete-music" onclick="deleteButton(${currentNumber})" style="padding: 10px 10px; border: 1px solid #3663ff; text-align: right;" >Delete</a>
+    </div>
+    <br>
+    <div class="custum-browse custum-browse-v2 d-flex align-items-center">
+      <div class="brws">
+        <input class="br-input fileInput" name="mp3-${currentNumber}" id="mp3-${textFileId}-${currentNumber}" type="file" accept=".mp3" />
+        <a href="#!" class="btn get-start browse-btn">
+          <img src="{% static 'lead-maker/images/upload-icn-black.svg' %}" alt="" />Choose file
+        </a>
+      </div>
+      <p   id="uploadText-${currentNumber}"></p>
+       <i id="clear-file-${currentNumber}" style="display:none" onclick="clearFileInput(${currentNumber})" class="ri-close-circle-line"></i>
+      
+    </div>`;
+
+  const newSection2 = document.createElement("div");
+  newSection2.classList.add("browse-field");
+  newSection2.innerHTML = `
+    
+    <div class="browse-field">
+      <div>
+        <div class="fontSize-Container">
+          <label for="${sliderId}" class="label-txt" style="font-weight: bold;"
+                        >MP3 ${currentNumber} Volume:</label
+                      >
+          <div class="slider-value" min id="${valueLabelId}">20%</div>
+          <input  onchange="saveInput(this)" class="slider-value-input" id="${valuescrollId}" name="volume-${currentNumber}"  type="number" value="20" hidden />
+        </div>
+        <div class="slider-container">
+          <div class="slider-track">
+            <div class="slider-filled" id="${sliderFilledId}"></div>
+          </div>
+          <div class="slider-thumb" id="${sliderThumbId}"></div>
+        </div>
+      </div>
+    </div><br><label for="exampleInput" class="label-txt"  style="margin-bottom: 2px;">What Second Should This MP3 Play? <small>in minutes</small></label><!-- Volume Slider -->
+    `;
+
+  // Create a new section for start and end time input
+  const newSection3 = document.createElement("div");
+  newSection3.classList.add("time-fld");
+  newSection3.innerHTML = `
+    <div class="browse-field">
+      <label for="starts[]" class="label-txt">Start:</label>
+      <input onchange="saveInput(this)" type="text" placeholder="00:00"  name="starts-${currentNumber}" class="form-control" id="starts-${textFileId}-${currentNumber}" aria-describedby="emailHelp" />
+    </div>
+    <div class="browse-field">
+      <label for="ends" class="label-txt">End:</label>
+      <input onchange="saveInput(this)" type="text" placeholder="00:00"  name="ends-${currentNumber}" class="form-control" id="ends-${textFileId}-${currentNumber}" aria-describedby="emailHelp" />
+    </div>`;
+
+  // Append the heading and inputs to the new section
+  newSection.appendChild(newSection1);
+  newSection.appendChild(newSection2);
+  newSection.appendChild(newSection3);
+  sectionContainer.appendChild(newSection);
+
+
+
+  addInputValidation(currentNumber);
+  handleSliding(currentNumber)
+  inputHander(currentNumber)
+});
+
+function handleFileInputChange(number) {
+    const fileInput = document.getElementById(`mp3-${textFileId}-${number}`);
+    const uploadText = document.getElementById(`uploadText-${number}`);
+    const clearFile= document.getElementById(`clear-file-${number}`);
+
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length > 0) {
+            uploadText.textContent = fileInput.files[0].name;
+            clearFile.style.display='flex'
+          } else {
+          clearFile.style.display='none'
+            uploadText.textContent = 'Choose File';
+        }
+    });
+}
+
+function inputHander(c_number) {
+  const fileInput = document.getElementById(`mp3-${textFileId}-${c_number}`);
+  const uploadText = document.getElementById(`uploadText-${c_number}`);
+  const startTimeInput = document.getElementById(`starts-${textFileId}-${c_number}`);
+  const endTimeInput = document.getElementById(`ends-${textFileId}-${c_number}`);
+  const currentFileP = document.getElementById(`mp3_${c_number}_current`)
+  const clearFile= document.getElementById(`clear-file-${c_number}`);
+
+fileInput.addEventListener('change', function() {
+
+
+  if (fileInput.files.length > 0) {
+    uploadText.textContent = fileInput.files[0].name.slice(0, 25);
+    startTimeInput.required = true;
+    clearFile.style.display='flex'
+
+    endTimeInput.required = true;
+    submitForm.style.display = 'flex';
+    proceed.style.display = 'none';
+    if (currentFileP) {
+      currentFileP.remove();
+    };
+
+    if (c_number === 1){
+      // clearBtn.style.display = 'block'
+
+    }
+
+  } else {
+    uploadText.textContent = 'Choose File';
+    startTimeInput.required = false
+    endTimeInput.required = false
+    clearFile.style.display='none'
+
+
+    if (c_number === 1){
+      // clearBtn.style.display = 'none'
+
+    }
+  }
+});
+};
+
+function saveInput(inputElement) {
+if (inputElement.type === 'file') {
+  // For file inputs, save the file name
+  if (inputElement.files.length > 0) {
+  }
+} else {
+  // For other inputs, save the value
+  sessionStorage.setItem(inputElement.id, inputElement.value);
+}
+}
+
+function addInputValidation(number) {
+const startTimeInput = document.getElementById(`starts-${textFileId}-${number}`);
+const endTimeInput = document.getElementById(`ends-${textFileId}-${number}`);
+
+[startTimeInput, endTimeInput].forEach(input => {
+  input.addEventListener('input', function() {
+    let value = input.value.replace(/[^0-9:]/g, ''); // Remove unwanted characters
+    if (value.length === 2 && !value.includes(':')) {
+      value += ':';
+    }
+    if (value.length > 5) {
+      value = value.substring(0, 5);
+    }
+    input.value = value;
+
+    // Validate numbers on each side of the colon
+    const parts = value.split(':');
+    if (parts[0] && parseInt(parts[0], 10) > 59) {
+      input.value = `59:${parts[1] || ''}`;
+    }
+    if (parts[1] && parseInt(parts[1], 10) > 59) {
+      input.value = `${parts[0] || ''}:59`;
+    }
+  });
+});
+}
+
+function handleSliding(sliderNumber) {
+  const sliderThumb = document.getElementById("sliderThumb-" + sliderNumber);
+  const sliderFilled = document.getElementById("slider-filled-" + sliderNumber);
+  const valueLabel = document.getElementById("valueLabel-" + sliderNumber);
+  const valuescrollId = document.getElementById(`valuescrollId-${textFileId}-${sliderNumber}`);
+  const sliderContainer = document.querySelector(".slider-container");
+  const trackWidth = sliderContainer.offsetWidth;
+
+  let isDragging = false;
+  
+  sliderThumb.style.left = "20%";
+  sliderFilled.style.width = "20%";
+
+  const minValue = 0;
+  const maxValue = 100;
+
+  function updateSliderPosition(event) {
+    if (isDragging) {
+      const rect = sliderContainer.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const percentage = Math.max(0, Math.min(offsetX / trackWidth, 1));
+      const value = Math.round(
+        percentage * (maxValue - minValue) + minValue
+      ); 
+
+      sliderThumb.style.left = `${percentage * 100}%`;
+      sliderFilled.style.width = `${percentage * 100}%`;
+      valueLabel.innerHTML = `${value}%`; 
+      valuescrollId.value = `${value}`;
+      saveInput(valuescrollId)
+      console.log(valuescrollId.id,valuescrollId.value)
+
+    }
+  }
+  sliderThumb.addEventListener("mousedown", () => {
+    isDragging = true;
+  });
+
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
+
+  document.addEventListener("mousemove", updateSliderPosition);
+}
+
+function deleteButton(c_number) {
+    const container = document.getElementById(`upload-${c_number}`);
+
+    if (container) {
+      container.remove();
+    // n_musics.value=n_musics.value-1
+
+    }
+  }
+
+</script>
+{% if textfile.background_musics.all %}
+<script>
+  window.onload = function() {
+      document.getElementById('lead-form').reset()
+      const inputs = document.querySelectorAll('input');
+
+      inputs.forEach(input => {
+        if (input.type === 'file') {
+
+        } else {
+          const storedValue = sessionStorage.getItem(input.id);
+          if (storedValue) {
+            input.value = storedValue;
+
+            if (input.id.startsWith('valuescrollId')) {
+              const idParts = input.id.split('-');
+              const currentNumber = idParts[idParts.length - 1]; 
+              const sliderThumb = document.getElementById("sliderThumb-" + currentNumber);
+              const sliderFilled = document.getElementById("slider-filled-" + currentNumber);
+              const valueLabel = document.getElementById("valueLabel-" + currentNumber);
+              valueLabel.textContent=`${storedValue}%`;
+              sliderThumb.style.left = `${storedValue}%`;
+              sliderFilled.style.width = `${storedValue}%`;
+            }
+          }
+        }
+      });
+    };
+
+  function deleteMusicButton(musicId) {
+        $.ajax({
+            url: '/text/delete-background-music/' + musicId + '/',  
+            type: 'DELETE',  
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'  
+            },
+            success: function(response) {
+                location.reload();  
+            },
+            error: function(xhr, status, error) {
+                alert("Error deleting music: " + error);
+            }
+        });
+    }
+for (let i = 0; i < "{{n_musics}}" ; i++) {
+  console.log(i, "{{n_musics}}" )
+  addInputValidation(i+1)
+  inputHander(i+1)
+  handleSliding(i+1)
+}
+// function inputHanderSaved(c_number) {
+//   const fileInput = document.getElementById(`mp3-${textFileId}-${c_number}`);
+//   const uploadText = document.getElementById(`uploadText-${c_number}`);
+//   const startTimeInput = document.getElementById(`starts-${textFileId}-${c_number}`);
+//   const endTimeInput = document.getElementById(`ends-${textFileId}-${c_number}`);
+//   const currentFileP = document.getElementById(`mp3_${c_number}_current`)
+
+// fileInput.addEventListener('change', function() {
+
+
+//   if (fileInput.files.length > 0) {
+//     uploadText.textContent = fileInput.files[0].name.slice(0, 25);
+//     startTimeInput.required = true;
+//     endTimeInput.required = true;
+//     submitForm.style.display = 'flex';
+//     proceed.style.display = 'none';
+//     if (currentFileP) {
+//       currentFileP.remove();
+//     };
+
+//     if (c_number === 1){
+//       // clearBtn.style.display = 'block'
+
+//     }
+
+//   } else {
+//     uploadText.textContent = 'Choose File';
+//     startTimeInput.required = false
+//     endTimeInput.required = false
+
+//     if (c_number === 1){
+//       // clearBtn.style.display = 'none'
+
+//     }
+//   }
+// });
+// };
+
+</script>
+{% else %}
+<script>
+
+  addInputValidation(1)
+  inputHander(1)
+  handleSliding(1)
+</script>
+{% endif %}
+{% endblock content %}

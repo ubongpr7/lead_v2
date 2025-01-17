@@ -1,0 +1,388 @@
+{% extends 'lead-maker/accounts/base.html' %}
+{% block content %}
+{% load static %}
+{% include "lead-maker/includes/header.html" %}
+
+
+
+<style>
+  #plansPopup {
+    padding: 46px;
+    position: relative;
+    background: white;
+    border-radius: 16px
+  }
+
+  .plans-popup-container {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .close-popup {
+    width: 25px;
+    height: 25px;
+    padding: 5px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background-color: lightgray;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .p-cards-grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 400px);
+    column-gap: 20px;
+    width: fit-content;
+    height: fit-content;
+    padding: 20px;
+  }
+
+  .p-cards-grid-item {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    border: solid 0.2px #0000001a;
+    border-radius: 8px;
+    padding: 28px 28px;
+  }
+
+  .p-cards-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+    width: 100%;
+  }
+
+  .mid {
+    border: solid 2px #0e44ff;
+  }
+
+  .g-head {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32.4px;
+    letter-spacing: -0.01em;
+    text-align: left;
+  }
+
+  .g-p {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: -0.01em;
+    text-align: left;
+    margin-bottom: 28px;
+  }
+
+  .bold-size {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 54px;
+    text-align: center;
+  }
+
+  .font {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    letter-spacing: -0.6px;
+    font-weight: 800;
+    color: #00000080;
+  }
+
+  .price-promo {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+    letter-spacing: -0.01em;
+    text-align: center;
+  }
+
+  .price {
+    margin-bottom: 20px;
+  }
+
+  .benefits {
+    display: flex;
+    column-gap: 10px;
+    align-items: center;
+    justify-items: center;
+    margin-bottom: 20px;
+  }
+
+  .benefits-text {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: -0.01em;
+    text-align: left;
+  }
+
+  .p-button {
+    width: 250px;
+    background: #0e44ff;
+    padding: 12px 32px;
+    width: 82%;
+    border: solid 1px #0e44ff;
+    border-radius: 8px;
+    text-align: center;
+    display: block;
+    color: white;
+    transition: 0.3s ease;
+  }
+
+  .p-button:hover {
+    background-color: #6b4fc1;
+  }
+
+  .mp {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hype {
+    color: #0e44ff;
+    background: #9dbdff33;
+    font-size: 14px;
+    padding: 4px 8px 4px 8px;
+    border: solid 1px #9dbdff33;
+    border-radius: 50px;
+  }
+
+  .middle {
+    margin-bottom: 32px;
+  }
+
+  .bottom-heading {
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .more-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+</style>
+
+<main class="content contain">
+        <section class="login-sec voice-subtitle">
+            <div class="container">
+                <ul class="status-bar">
+                    <li class="active loading loaded"><a href="#!">Upload & Customise</a></li>
+                    <li class="active loading loaded" >
+                      <a href="#!">Video Trimming</a>
+                    </li>
+                    <li class="active loading loaded"><a href="#!">Lead Creation</a></li>
+                    <li class="active loading loaded"><a href="#!">Background Music Selection</a></li>
+                    <li class="active"><a href="#!">Download</a></li>
+                </ul>
+                <div class="lead-container">
+                  <!-- <a href="/text/process-background-music/{{text_file.id}}" class="lead-back">
+                    <img src="{% static 'lead-maker/images/left-arrow.svg' %}" alt="back" class="img-fluid" />
+                  </a> -->
+                  <div style="display: flex;margin-bottom: 40px; justify-content: center; align-items: center; height: 100%; width: 100%;">
+                    <a href="{% url 'video_text:process_background_music' text_file.id %}"
+                       style="display: flex;
+                              border: 1px solid #0e44ff;
+                              box-sizing: border-box;
+                              align-items: center;
+                              justify-content: center;
+                              text-decoration: none;
+                              background: white;
+                              border-radius: 8px;
+                              font-family: Montserrat;
+                              font-size: 18px;
+                              font-weight: 500;
+                              line-height: 21.94px;
+                              color: #0e44ff;
+                              padding: 5px 24px;
+                              width: 80%;
+                              margin: auto;">
+                        <span style="line-height: 24px;">Go Back To Change Background Music</span>
+                    </a>
+                </div>
+                
+                    <h5 class="text-center lead-title">Your Video Has Been Generated Successfully</h5>
+                    <div class="video-container">
+                        <video height="400"  controls>
+                    {% if bg_music == 'false' %}
+
+                            <source src="{{ text_file.generated_watermarked_video.url }}"
+                            type="video/mp4" />
+                            {% else %}
+                            <source src="{{ text_file.generated_final_bgmw_video.url }}"
+                            type="video/mp4" />
+                      
+                      {%endif%}
+                                Your browser does not support the video tag.
+                        </video> 
+                    </div>
+                    {% if user.subscription.plan.name|lower == 'free' %}
+                    
+                    <button   class="btn proceed-btn" onclick="showPopup()" >
+                      Download
+                      <img class="btn-arrow" src="{% static 'lead-maker/images/download-icn.svg' %}" alt="Download Arrow" />
+                    </button> 
+                    {%else %}
+                    {% if bg_music == 'false' %}
+                    
+          
+                     <a href="{% url 'video_text:download_file' file_key=text_file.generated_final_video.name textfile_id=text_file.id %}"  class="btn proceed-btn" id="download">
+                        Download
+                        <img class="btn-arrow" src="{% static 'lead-maker/images/download-icn.svg' %}" alt="Download Arrow" />
+                        </a> 
+                        {%else %}
+                        <a  href="{% url 'video_text:download_file' file_key=text_file.generated_final_bgm_video.name textfile_id=text_file.id %}" class="btn proceed-btn" id="download">
+                           Download
+                           <img class="btn-arrow" src="{% static 'lead-maker/images/download-icn.svg' %}" alt="Download Arrow" />
+                           </a> 
+                           {% endif %}
+                        {%endif %}
+                    <p style="margin-top: 13px; font-size: 12px; color: black">
+                        *Please Note The Watermark Will Be Removed When You Click Download
+                    </p>
+                </div>
+                
+            </div>
+        </section>
+</main>
+
+    <div class="plans-popup-container hidden">
+      <div id="plansPopup">
+        <div class="close-popup">
+          <img src="{% static 'assets/icons/x.svg' %}" alt="" />
+        </div>
+
+        <div class="plans">
+          <div class="p-cards-grid-container">
+            <div class="p-cards-grid-item mid">
+              <div class="mp">
+                <span class="highlight g-head" style="text-transform: capitalize;">{{ plans.0.name }} Plan</span>
+                <span class="hype">Most popular</span>
+              </div>
+              <p class="g-p">Perfect For Scaling Your Video Advertising Campaigns</p>
+              <div class="price">
+                <span><span class="bold-size">${{ plans.0.price }}</span> <span class="font">/Month</span><span>
+                  <br />
+                  <span class="price-promo">Just ${{ plans.0.price_per_vsl }} Per VSL</span>
+                </div>
+                <div class="benefits">
+                  <img src="{% static 'assets/icons/check.svg' %}" alt="" />
+                  <span class="benefits-text">Create Up To {{ plans.0.vsl_limit }} VSLs Per Month</span>
+                </div>
+                {% if  bg_music %}
+
+                <a href="{% url 'accounts:upgrade_subscription' price_id=plans.0.stripe_price_id %}?success_path=/accounts/manage-subscription&cancel_path=/accounts/manage-subscription&user_url=/text/download_video/{{text_file.id}}/?bg_music=false"
+                   class="p-button"
+                   style="text-decoration: none">Get Started</a>
+                   {%else %}
+                   <a href="{% url 'accounts:upgrade_subscription' price_id=plans.0.stripe_price_id %}?success_path=/accounts/manage-subscription&cancel_path=/accounts/manage-subscription&user_url=/text/download_video/{{text_file.id}}/?bg_music=false"
+                      class="p-button"
+                      style="text-decoration: none">Get Started</a>
+                  {%endif%}
+              </div>
+              <div class="p-cards-grid-item">
+                <span class="highlight g-head" style="text-transform: capitalize;">{{ plans.1.name }} Plan</span>
+                <p class="g-p">Ideal For High-Volume Marketers And Agencies</p>
+                <div class="price">
+                  <span><span class="bold-size">${{ plans.1.price }}</span> <span class="font">/Month</span><span>
+                    <br />
+                    <span class="price-promo">Just ${{ plans.1.price_per_vsl }} Per VSL</span>
+                  </div>
+                  <div class="benefits">
+                    <img src="{% static 'assets/icons/check.svg' %}" alt="" />
+                    <span class="benefits-text">Create Up To {{ plans.1.vsl_limit }} VSLs Per Month</span>
+                  </div>
+                  {% if  bg_music %}
+                  <a href="{% url 'accounts:upgrade_subscription' price_id=plans.1.stripe_price_id %}?success_path=/accounts/manage-subscription&cancel_path=/accounts/manage-subscription&user_url=/text/download_video/{{text_file.id}}/?bg_music=false"
+                     class="p-button"
+                     style="text-decoration: none">Get Started</a>
+                     {%else%}
+                     <a href="{% url 'accounts:upgrade_subscription' price_id=plans.1.stripe_price_id %}?success_path=/accounts/manage-subscription&cancel_path=/accounts/manage-subscription&user_url=/text/download_video/{{text_file.id}}"
+                        class="p-button"
+                        style="text-decoration: none">Get Started</a>
+
+                     {%endif%}
+                </div>
+              </div>
+            </div>
+          </div>
+    </div>
+    
+<script>
+function showPopup() {
+  const popupContainer = document.querySelector('.plans-popup-container');
+  popupContainer.classList.remove('hidden');
+  document.body.classList.add('no-scroll');
+}
+
+function hidePopup() {
+  const popupContainer = document.querySelector('.plans-popup-container');
+  popupContainer.classList.add('hidden'); // Add 'hidden' class to hide the popup
+  document.body.classList.remove('no-scroll'); // Re-enable background scrolling
+}
+
+// Add event listener for the close button
+document.querySelector('.close-popup img').addEventListener('click', hidePopup);
+
+// Optional: Close popup when clicking outside the content
+document.querySelector('.plans-popup-container').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) hidePopup();
+});
+
+
+</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+<script>
+    
+    document.getElementById('download').addEventListener('click', function(event) {
+            event.preventDefault(); 
+
+            if ('{{ request.user.subscription.plan.name }}' == 'Free') {
+              document.querySelector('.plans-popup-container').classList.remove('hidden');
+            } else {
+              const href = event.currentTarget.getAttribute('href');
+
+              fetch(href)
+                .then(response => {
+                  if (response.ok) {
+                    const tempLink = document.createElement('a');
+                    tempLink.href = href;
+                    tempLink.setAttribute('download', 'videocrafter.mp4');
+                    document.body.appendChild(tempLink);
+                    tempLink.click();
+                    document.body.removeChild(tempLink);
+
+                    window.location.href = '/text';
+                  } else {
+                    console.error('Download failed or could not start.');
+                  }
+                })
+                .catch(error => {
+                  console.error('Error initiating the download:', error);
+                });
+            }
+          });
+        
+</script>
+
+
+{% endblock content %}
