@@ -1115,6 +1115,7 @@
 .status-bar li.loading {
   position: relative;
 }
+
 .status-bar li.loading:after {
   background: #3663ff;
   content: "";
