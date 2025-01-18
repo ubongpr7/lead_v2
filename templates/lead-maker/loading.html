@@ -2,7 +2,18 @@
 {% block content %}
 {% load static %}
 {% include "lead-maker/includes/header.html" %}
-
+<style>
+  
+.status-bar li.loading.loaded:nth-child(2)::after {
+  width: 150%;
+}
+.status-bar li.loading.loaded:nth-child(3)::after {
+  width: 76%;
+}
+.status-bar li.loading.loaded:nth-child(4)::after {
+  width: 76%;
+}
+</style>
     <div class="content">
 
       <section class="login-sec voice-subtitle">
