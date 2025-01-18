@@ -7,8 +7,27 @@
 <style>
   .highlight {
     color: red;
-}
 
+    
+}
+.status-bar li:last-child a::before {
+  width: 0;
+}
+.status-bar li:nth-child(2) a::before {
+  width: 200%;
+  left: 148%;
+}
+.status-bar li:nth-child(3) a::before {
+  width: 207%;
+  left: 107%;
+}
+.status-bar li:nth-child(4) a::before {
+  width: 100%;
+  left: 96%;
+}
+.status-bar li.active a::after {
+  background: #3663ff;
+}
 
 </style>
 <div class="content contain">
