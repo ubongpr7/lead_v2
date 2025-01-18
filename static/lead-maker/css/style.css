@@ -732,15 +732,15 @@
   width: 0;
 }
 .status-bar li:nth-child(2) a::before {
-  width: 200%;
+  width: 197%;
   left: 148%;
 }
 .status-bar li:nth-child(3) a::before {
-  width: 107%;
+  width: 207%;
   left: 96%;
 }
 .status-bar li:nth-child(4) a::before {
-  width: 97%;
+  width: 100%;
   left: 96%;
 }
 .status-bar li.active a::after {
