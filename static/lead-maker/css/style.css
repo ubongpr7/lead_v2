@@ -1196,6 +1196,9 @@
 .status-bar li.loading.loaded:nth-child(3)::after {
   width: 76%;
 }
+.status-bar li.loading.loaded:nth-child(4)::after {
+  width: 76%;
+}
 .custum-browse-v2 .btn.browse-btn {
   background: none;
   color: rgba(17, 17, 17, 0.7);
