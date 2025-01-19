@@ -1117,7 +1117,7 @@
 }
 
 .status-bar li.loading:after {
-  background: #3663ff;
+  background: #005c4b;
   content: "";
   height: 10px;
   border-radius: 6px;
@@ -1126,10 +1126,10 @@
   bottom: -40px;
   left: 46%;
   position: absolute;
-  overflow: h;
+  overflow: hidden;
 }
 .status-bar li.loading.loaded:after {
-  width: 94%;
+  width: 100%;
 }
 .download-preview {
   border-radius: 8px;
