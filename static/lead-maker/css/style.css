@@ -1209,7 +1209,7 @@
 
 
 .status-bar li.loading:after {
-  background: #3663ff;
+  background: #005c4b;
   content: "";
   height: 10px;
   border-radius: 6px;
