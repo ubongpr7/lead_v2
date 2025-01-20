@@ -72,7 +72,7 @@
                               <ul style="margin: 0;" id="list-of-tags_{{forloop.counter}}" class="list-of-tags">
       
                                   {% for subclip in clip.subclips.all %}
-                                  <li data-id="{{subclip.id}}" style="font-size: 1.5rem;"  
+                                  <li data-id="{{subclip.id}}" style="font-size: 1.5rem; border-color: #3663FF;"  
                                     data-current_file="{{subclip.get_video_file_name}}"
                                     id="saved_li_{{subclip.id}}"
                                         onclick="editCurrentLi(this)">
@@ -91,12 +91,7 @@
                 </td> 
                      
                 
-              <td id='action_{{forloop.counter}}'>
-
-                  <a href="#!" class="delete-row-btn"id="delete_{{forloop.counter}}" onclick="deleteSavedSlide('{{clip.id}}', this)">
-                  <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
-                </a>
-              </td>
+              
               <td>
                 <a href="#!"  
                   class="delete-row-btn" 
@@ -104,6 +99,12 @@
                   onclick="EditeSlide('{{forloop.counter}}')">
                   <img src="{% static 'lead-maker/images/edit-button-svgrepo-com.svg' %}" alt="edit" />
                 </a>
+          </td>
+          <td id='action_{{forloop.counter}}'>
+
+              <a href="#!" class="delete-row-btn"id="delete_{{forloop.counter}}" onclick="deleteSavedSlide('{{clip.id}}', this)">
+              <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
+            </a>
           </td>
           <td>
             <a href="#!" 
