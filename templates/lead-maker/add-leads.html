@@ -535,19 +535,19 @@ function addSlide() {
               <div id="error-message_${currentNumber}" style="text-transform: capitalize;" class="error-message"></div>
           </div>
         </td>
-        <td id="action_${currentNumber}">
-            <a href="#!" class="delete-row-btn" id="delete_${currentNumber}" onclick="deleteSlide(this)">
-              <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
-            </a>
-            </td>
+        
             <td>
-
             <a href="#!"  
                class="delete-row-btn" 
                id="edit_${currentNumber}" 
                style="display:none;" 
                onclick="EditeSlide(${currentNumber})">
               <img src="{% static 'lead-maker/images/edit-button-svgrepo-com.svg' %}" alt="edit" />
+            </a>
+            </td>
+            <td id="action_${currentNumber}">
+            <a href="#!" class="delete-row-btn" id="delete_${currentNumber}" onclick="deleteSlide(this)">
+              <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
             </a>
             </td>
             <td>
