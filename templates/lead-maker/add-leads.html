@@ -53,9 +53,9 @@
             <tr style="height: fit-content;">
               <th class="slide-first" style="font-size: 1.8rem;">Subtitle</th>
               <th style="font-size: 1.8rem;">Subtitle Text</th>
-              <th class="slide-last" style="font-size: 1.8rem;">Delete Slide</th>
-              <th class="slide-last" style="font-size: 1.8rem;">Edit Slide</th>
-              <th class="slide-last" style="font-size: 1.8rem;">Reset Clips</th>
+              <th class="slide-last" style="font-size: 1.8rem; text-wrap: nowrap;">Edit Slide</th>
+              <th class="slide-last" style="font-size: 1.8rem; text-wrap: nowrap;">Delete Slide</th>
+              <th class="slide-last" style="font-size: 1.8rem; text-wrap: nowrap;">Reset Clips</th>
             </tr>
           </thead>
           <tbody>
@@ -93,12 +93,15 @@
                 
               
               <td>
-                <a href="#!"  
-                  class="delete-row-btn" 
-                  id="edit_{{forloop.counter}}" 
-                  onclick="EditeSlide('{{forloop.counter}}')">
-                  <img src="{% static 'lead-maker/images/edit-button-svgrepo-com.svg' %}" alt="edit" />
-                </a>
+                <div style="display: flex; place-items: center; justify-content: center;">
+                  <a href="#!"  
+                    class="delete-row-btn" 
+                    id="edit_{{forloop.counter}}" 
+                    onclick="EditeSlide('{{forloop.counter}}')">
+                    <img src="{% static 'lead-maker/images/edit-button-svgrepo-com.svg' %}" alt="edit" />
+                  </a>
+                </div>
+                
           </td>
           <td id='action_{{forloop.counter}}'>
 
