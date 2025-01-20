@@ -80,7 +80,7 @@
                                     </li>
                                   {% endfor %}
                                   <span id="slide_span_{{forloop.counter}}" data-num="{{clip.get_number_of_subclip}}"
-                                      data-id="{{clip.id}}">{{ clip.remaining }}
+                                      data-id="{{clip.id}}" style="padding: 5px 10px;">{{ clip.remaining }}
                                     </span>
                               </ul>
                               <input id="remaining_{{forloop.counter}}" name="remaining_" hidden type="text">
@@ -104,19 +104,23 @@
                 
           </td>
           <td id='action_{{forloop.counter}}'>
-
+            <div style="display: flex; place-items: center; justify-content: center;">
               <a href="#!" class="delete-row-btn"id="delete_{{forloop.counter}}" onclick="deleteSavedSlide('{{clip.id}}', this)">
-              <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
-            </a>
+                <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
+              </a>
+            </div>
+
+              
           </td>
           <td>
-            <a href="#!" 
-               class="delete-row-btn" 
-               id="reset_{{forloop.counter}}" 
-               onclick="subclipReset('{{clip.id}}')">
-              <img src="{% static 'lead-maker/images/reset-svgrepo-com.svg' %}" alt="reset" />
-            </a>
-                
+            <div style="display: flex; place-items: center; justify-content: center;">
+              <a href="#!" 
+                class="delete-row-btn" 
+                id="reset_{{forloop.counter}}" 
+                onclick="subclipReset('{{clip.id}}')">
+                <img src="{% static 'lead-maker/images/reset-svgrepo-com.svg' %}" alt="reset" />
+              </a>
+            </div>     
           </td>
             </tr>
 
