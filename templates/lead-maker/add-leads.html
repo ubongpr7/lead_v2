@@ -48,20 +48,20 @@
             Add New Subtitle +
           </a>
         </div>
-        <table id="leadsTable" class="lead-table" style="width: 100%;">
+        <table id="leadsTable" class="lead-table" style="width: 100%; display: table;">
           <thead>
-            <tr>
-              <th class="slide-first">Subtitle</th>
-              <th>Subtitle Text</th>
-              <th class="slide-last">Action</th>
+            <tr style="height: fit-content;">
+              <th class="slide-first" style="font-size: 1.8rem;">Subtitle</th>
+              <th style="font-size: 1.8rem;">Subtitle Text</th>
+              <th class="slide-last" style="font-size: 1.8rem;">Action</th>
             </tr>
           </thead>
           <tbody>
             {% if clips %}
             {% for clip in clips %}
-            <tr id="tr_{{clip.id}}">
-              <td>Subtitle {{ forloop.counter }}</td>
-                <td id="highlightable_{{forloop.counter}}">
+            <tr style="height: fit-content;" id="tr_{{clip.id}}">
+              <td style="width: 18%; text-wrap: nowrap; font-size: 1.8rem;">Subtitle {{ forloop.counter }}</td>
+                <td id="highlightable_{{forloop.counter}}" style="width: 64%;">
                   <div>
 
                         <textarea style="display: none;"  name="slide_text" class="form-control tab-textarea" aria-describedby="textarea"  id="slide_text_{{forloop.counter}}"  >{{clip.slide}}</textarea>
@@ -70,7 +70,7 @@
                               <ul style="margin: 0;" id="list-of-tags_{{forloop.counter}}" class="list-of-tags">
       
                                   {% for subclip in clip.subclips.all %}
-                                  <li data-id="{{subclip.id}}"  
+                                  <li data-id="{{subclip.id}}" style="font-size: 1.5rem;"  
                                     data-current_file="{{subclip.get_video_file_name}}"
                                     id="saved_li_{{subclip.id}}"
                                         onclick="editCurrentLi(this)">
@@ -90,7 +90,8 @@
                      
                 
               <td id='action_{{forloop.counter}}'> 
-                <a href="#!" class="delete-row-btn"id="delete_{{forloop.counter}}" onclick="deleteSavedSlide('{{clip.id}}', this)">
+                <div style="display: flex; gap: 2rem; place-items: center; justify-content: center;">
+                  <a href="#!" class="delete-row-btn"id="delete_{{forloop.counter}}" onclick="deleteSavedSlide('{{clip.id}}', this)">
                   <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
                 </a>
                 <a href="#!"  
@@ -105,6 +106,8 @@
                onclick="subclipReset('{{clip.id}}')">
               <img src="{% static 'lead-maker/images/reset-svgrepo-com.svg' %}" alt="reset" />
             </a>
+                </div>
+                
               </td>
             </tr>
 
