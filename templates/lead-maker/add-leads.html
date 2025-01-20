@@ -6,10 +6,13 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.min.css">
 <style>
   .highlight {
-    color: red;
-
-    
+    color: red; 
 }
+
+.lead-container {
+  max-width: 90%;
+}
+
 
 
 </style>
@@ -32,7 +35,7 @@
           <a href="#!">Download</a>
         </li>
       </ul>
-    <div class="lead-container lead-details">
+    <div class="lead-container lead-details" style="max-width: 90%; ">
       <div class="lead-header">
         <a href="/text/trim-video/{{text_file.id}}" class="lead-back">
           <img src="{% static 'lead-maker/images/left-arrow.svg' %}" alt="back" class="img-fluid" />
@@ -45,7 +48,7 @@
             Add New Subtitle +
           </a>
         </div>
-        <table id="leadsTable" class="lead-table">
+        <table id="leadsTable" class="lead-table" style="width: 100%;">
           <thead>
             <tr>
               <th class="slide-first">Subtitle</th>
