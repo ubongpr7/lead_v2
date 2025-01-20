@@ -537,6 +537,8 @@ function addSlide() {
         </td>
         
             <td>
+            <div style="display: flex; place-items: center; justify-content: center;">
+              
             <a href="#!"  
                class="delete-row-btn" 
                id="edit_${currentNumber}" 
@@ -544,6 +546,7 @@ function addSlide() {
                onclick="EditeSlide(${currentNumber})">
               <img src="{% static 'lead-maker/images/edit-button-svgrepo-com.svg' %}" alt="edit" />
             </a>
+            </div>
             </td>
             <td id="action_${currentNumber}">
             <div style="display: flex; place-items: center; justify-content: center;">
@@ -554,6 +557,8 @@ function addSlide() {
             </div>
             </td>
             <td>
+            <div style="display: flex; place-items: center; justify-content: center;">
+
             <a href="#!" 
                style="display:none; " 
                class="delete-row-btn" 
@@ -561,6 +566,7 @@ function addSlide() {
                >
               <img src="{% static 'lead-maker/images/reset-svgrepo-com.svg' %}" alt="reset" />
             </a>
+            </div>
         </td>`;
         document.getElementById(`slide_text_${currentNumber}`).focus()
     setTimeout(() => {
