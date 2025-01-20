@@ -100,7 +100,6 @@ PEXELS_API_KEY = (
     os.getenv('PEXELS_API_KEY')
    
 )
-# Base URL for Pexels API
 BASE_URL = "https://api.pexels.com/videos/search"
 os.environ["PYTHONIOENCODING"] = "UTF-8"
 logging.basicConfig(
