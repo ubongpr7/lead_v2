@@ -746,6 +746,9 @@
 } */
 
 .status-bar li:last-child a::before {
+  width: 0;
+}
+.status-bar li:nth-child(1) a::before {
   width: 120%;
   left: 104%;
 }
