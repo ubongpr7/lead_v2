@@ -721,10 +721,10 @@
 .status-bar a::before {
   background: #eeeeee;
   height: 10px;
-  width: 121%;
+  width: 10%;
   z-index: 1;
   bottom: -40px;
-  left: 109%;
+  left: 100%;
   transform: translateX(-50%);
   border-radius: 0;
 }
@@ -746,20 +746,21 @@
 } */
 
 .status-bar li:last-child a::before {
-  width: 0;
+  width: 120%;
+  left: 104%;
 }
 .status-bar li:nth-child(2) a::before {
-  width: 200%;
-  left: 148%;
+  width: 170%;
+  left: 130%;
 }
 .status-bar li:nth-child(3) a::before {
-  width: 227%;
-  left: 150%;
+  width: 195%;
+  left: 143%;
 }
-.status-bar li:nth-child(4) a::before {
+/* .status-bar li:nth-child(4) a::before {
   width: 100%;
   left: 96%;
-}
+} */
 
 .status-bar li.active a::after {
   background: #3663ff;
@@ -768,7 +769,9 @@
   align-items: flex-start;
 }
 .status-bar li {
-  padding: 0 27px;
+  width: 20%;
+  display: flex;
+  justify-content: center;
 }
 .status-bar li:last-child {
   padding-right: 0;
