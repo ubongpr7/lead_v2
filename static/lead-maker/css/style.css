@@ -721,7 +721,7 @@
 .status-bar a::before {
   background: #eeeeee;
   height: 10px;
-  width: 10%;
+  width: 100%;
   z-index: 1;
   bottom: -40px;
   left: 100%;
@@ -749,9 +749,14 @@
   width: 0;
 }
 .status-bar li:nth-child(1) a::before {
-  width: 120%;
-  left: 104%;
+  width: 140%;
+  left: 114%;
 }
+
+.status-bar li:nth-child(3) {
+  text-wrap: nowrap;
+}
+
 .status-bar li:nth-child(2) a::before {
   width: 170%;
   left: 130%;
