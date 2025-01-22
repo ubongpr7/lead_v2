@@ -780,7 +780,7 @@
   width: 20%;
   display: flex;
   justify-content: center;
-  text-wrap: nowrap;
+  height: 1.5rem;
 }
 .status-bar li:last-child {
   padding-right: 0;
