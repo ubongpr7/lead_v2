@@ -691,23 +691,37 @@
   left: -16px;
 }
 .status-bar {
+  /* display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 45px 0;
+  margin-bottom: 47px; */
+  /* margin-right: 16px; */
+  /* margin-left: -20px;
+  width: 90%; */
+  width: 100%;
+  max-width: 700px;
+  margin: 20px auto;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 45px 0;
   margin-bottom: 47px;
-  /* margin-right: 16px; */
   margin-left: -20px;
   width: 90%;
+  list-style-type: none;
+  gap: 2rem;
 }
+
+
 .status-bar a {
   color: #111111;
   font-size: 1.4rem;
   position: relative;
   text-align: center;
 }
-.status-bar a::before,
-.status-bar a::after {
+.status-bar li::before,
+.status-bar li::after {
   content: "";
   position: absolute;
   left: 50%;
@@ -719,37 +733,23 @@
   bottom: -46px;
   z-index: 2;
 }
-.status-bar a::before {
+.status-bar li::before {
   background: #eeeeee;
   height: 10px;
-  width: 100%;
+  width: 140%;
   z-index: 1;
   bottom: -40px;
-  left: 100%;
+  left: 110%;
   transform: translateX(-50%);
   border-radius: 0;
 }
-/* 
-.status-bar li:last-child a::before {
-  width: 0;
-}
-.status-bar li:nth-child(2) a::before {
-  width: 200%;
-  left: 148%;
-}
-.status-bar li:nth-child(3) a::before {
-  width: 207%;
-  left: 107%;
-}
-.status-bar li:nth-child(4) a::before {
-  width: 100%;
-  left: 96%;
-} */
 
-.status-bar li:last-child a::before {
+
+.status-bar li:last-child::before {
   width: 0;
 }
-.status-bar li:nth-child(1) a::before {
+
+/* .status-bar li:nth-child(1) a::before {
   width: 140%;
   left: 114%;
 }
@@ -765,13 +765,13 @@
 .status-bar li:nth-child(3) a::before {
   width: 195%;
   left: 143%;
-}
+} */
 /* .status-bar li:nth-child(4) a::before {
   width: 100%;
   left: 96%;
 } */
 
-.status-bar li.active a::after {
+.status-bar li.active li::after {
   background: #3663ff;
 }
 .voice-subtitle {
@@ -783,6 +783,9 @@
   display: flex;
   justify-content: center;
   height: 1.5rem;
+  position: relative;
+  text-align: center;
+  align-items: center;
 }
 
 .status-bar li:last-child {
