@@ -1146,9 +1146,18 @@
   position: absolute;
   overflow: hidden; */
 }
-.status-bar li.loading.loaded:after {
+/* .status-bar li.loading.loaded:after {
   width: 100%;
+} */
+
+.status-bar li.loading::before {
+  background: #3663ff;
 }
+
+.status-bar li.loaded::before {
+  background: #3663ff;
+}
+
 .download-preview {
   border-radius: 8px;
   overflow: hidden;
