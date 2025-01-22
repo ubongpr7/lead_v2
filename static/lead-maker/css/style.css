@@ -701,7 +701,7 @@
   width: 90%; */
   width: 100%;
   max-width: 700px;
-  margin: 20px auto;
+  /* margin: 20px auto; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1130,7 +1130,7 @@
   display: inline-block;
   animation: dot-blink 1.5s steps(4, end) infinite;
 }
-.status-bar li.loading {
+/* .status-bar li.loading {
   position: relative;
 }
 
@@ -1148,7 +1148,7 @@
 }
 .status-bar li.loading.loaded:after {
   width: 100%;
-}
+} */
 .download-preview {
   border-radius: 8px;
   overflow: hidden;
@@ -1208,14 +1208,14 @@
   left: 268px;
 }
 
-.status-bar li.loading.loaded:nth-child(2)::after {
+/* .status-bar li.loading.loaded:nth-child(2)::after {
   width: 135%;
-}
+} */
 /* .status-bar li.loading.loaded:nth-child(3)::after {
   width: 76%;
 } */
  
-.status-bar li.loading.loaded:nth-child(2)::after {
+/* .status-bar li.loading.loaded:nth-child(2)::after {
   width: 135%;
 }
 .status-bar li.loading.loaded:nth-child(3)::after {
@@ -1223,13 +1223,13 @@
 }
 .status-bar li.loading.loaded:nth-child(4)::after {
   width: 76%;
-}
+} */
 
 
 
 
 
-.status-bar li.loading:after {
+/* .status-bar li.loading:after {
   background: #005c4b;
   content: "";
   height: 10px;
@@ -1255,7 +1255,7 @@
 
 .status-bar li.loading.loaded:nth-child(3)::after {
   width: 130%;
-}
+} */
 .custum-browse-v2 .btn.browse-btn {
   background: none;
   color: rgba(17, 17, 17, 0.7);
