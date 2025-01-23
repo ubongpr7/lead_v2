@@ -735,7 +735,7 @@
 .status-bar li::before {
   background: #eeeeee;
   height: 10px;
-  width: 115%;
+  width: 105%;
   z-index: 1;
   bottom: -40px;
   left: 105%;
