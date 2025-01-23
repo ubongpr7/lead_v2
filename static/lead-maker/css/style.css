@@ -1472,7 +1472,7 @@
   resize: none;
   border-radius: 8px;
   font-size: larger; /* Matching the placeholder font size */
-  padding: 5px;
+  /* padding: 5px; */
   font-weight: 500; /* Matching the placeholder font weight */
   color: #000; /* Text color same as placeholder */
 }
