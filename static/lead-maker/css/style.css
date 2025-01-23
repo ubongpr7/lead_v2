@@ -718,7 +718,7 @@
 }
 
 .status-bar li::before,
-.status-bar li::after, .status-bar li a::before {
+.status-bar li::after {
   content: "";
   position: absolute;
   left: 50%;
@@ -743,16 +743,16 @@
   border-radius: 0;
 }
 
-.status-bar li a::before {
+/* .status-bar li a::before {
   background: red;
   height: 10px;
   width: 105%;
-  z-index: 3;
+  z-index: 1;
   bottom: -40px;
   left: 105%;
   transform: translateX(-50%);
   border-radius: 0;
-}
+} */
 
 
 .status-bar li:last-child::before, .status-bar li:last-child a::before {
