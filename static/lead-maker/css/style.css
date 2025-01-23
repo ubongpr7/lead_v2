@@ -718,7 +718,7 @@
 }
 
 .status-bar li::before,
-.status-bar li::after {
+.status-bar li::after, .status-bar li a::before {
   content: "";
   position: absolute;
   left: 50%;
