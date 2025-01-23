@@ -735,7 +735,7 @@
 .status-bar li::before {
   background: #eeeeee;
   height: 10px;
-  width: 105%;
+  width: 115%;
   z-index: 1;
   bottom: -40px;
   left: 105%;
@@ -743,16 +743,30 @@
   border-radius: 0;
 }
 
-/* .status-bar li a::before {
-  background: red;
+.status-bar li a::before {
+  background: blue;
   height: 10px;
-  width: 105%;
+  width: 55%;
   z-index: 1;
   bottom: -40px;
   left: 105%;
   transform: translateX(-50%);
   border-radius: 0;
-} */
+}
+
+@media only screen and (min-width: 992px){
+  /* .status-bar li::before {
+    background: #eeeeee;
+    height: 10px;
+    width: 105%;
+  } */
+
+  .status-bar li:nth-child(3)::before {
+    width: 140%;
+    left: 115%;
+  }
+
+}
 
 
 .status-bar li:last-child::before, .status-bar li:last-child a::before {
@@ -801,6 +815,10 @@
 
 .status-bar li a {
   width: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .status-bar li:last-child {
