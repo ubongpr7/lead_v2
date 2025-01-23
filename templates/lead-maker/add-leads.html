@@ -511,12 +511,13 @@ function addSlide() {
 
     document.getElementById('no_of_slides').value = currentNumber;
     slideCell.innerText = `Subtitle ${currentNumber}`;
-    newRow.style.height = '5rem'
+    slideCell.style.fontSize = '1.8rem'
+    newRow.style.height = '5rem';
     newRow.innerHTML += `
-        <td id="highlightable_${currentNumber}" style="padding: 0;">
+        <td id="highlightable_${currentNumber}" style="padding: 0 4px;">
           <div>
             <textarea 
-                style="font-size: 19px; height: 3rem;"
+                style="font-size: 14px; height: 3rem;"
                 id="slide_text_${currentNumber}" 
                 type="text" 
                 
