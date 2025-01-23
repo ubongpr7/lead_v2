@@ -61,7 +61,7 @@
           <tbody>
             {% if clips %}
             {% for clip in clips %}
-            <tr style="height: fit-content;" id="tr_{{clip.id}}">
+            <tr style="height: 5rem;" id="tr_{{clip.id}}">
               <td style="width: 18%; text-wrap: nowrap; font-size: 1.8rem;">Subtitle {{ forloop.counter }}</td>
                 <td id="highlightable_{{forloop.counter}}" style="width: 64%;">
                   <div>
@@ -512,7 +512,7 @@ function addSlide() {
     document.getElementById('no_of_slides').value = currentNumber;
     slideCell.innerText = `Subtitle ${currentNumber}`;
     newRow.innerHTML += `
-        <td id="highlightable_${currentNumber}">
+        <td id="highlightable_${currentNumber}" style="height: 5rem;">
           <div>
             <textarea 
                 style="font-size: 19px; height: 5rem;"
@@ -545,7 +545,7 @@ function addSlide() {
                id="edit_${currentNumber}" 
                style="display:none;" 
                onclick="EditeSlide(${currentNumber})">
-              <img src="{% static 'lead-maker/images/edit-button-svgrepo-com.svg' %}" alt="edit" />
+              <img src="{% static 'lead-maker/images/edit-button-svgrepo-com.svg' %}" alt="edit" style="width: 3rem; height: 3rem;" />
             </a>
             </div>
             </td>
@@ -553,7 +553,7 @@ function addSlide() {
             <div style="display: flex; place-items: center; justify-content: center;">
 
             <a href="#!" class="delete-row-btn" id="delete_${currentNumber}" onclick="deleteSlide(this)">
-              <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" />
+              <img src="{% static 'lead-maker/images/delete-icn.svg' %}" alt="delete" style="width: 3rem; height: 3rem;"/>
             </a>
             </div>
             </td>
@@ -565,7 +565,7 @@ function addSlide() {
                class="delete-row-btn" 
                id="reset_${currentNumber}" 
                >
-              <img src="{% static 'lead-maker/images/reset-svgrepo-com.svg' %}" alt="reset" />
+              <img src="{% static 'lead-maker/images/reset-svgrepo-com.svg' %}" alt="reset" style="width: 3rem; height: 3rem;" />
             </a>
             </div>
         </td>`;
