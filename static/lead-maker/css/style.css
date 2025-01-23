@@ -691,11 +691,11 @@
   left: -16px;
 }
 
-.container {
+/* .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+} */
 
 .status-bar {
   display: flex;
@@ -755,7 +755,7 @@
 }
 
 
-.status-bar li:last-child::before, .status-bar li a:last-child::before {
+.status-bar li:last-child::before, .status-bar li:last-child a::before {
   width: 0;
 }
 
@@ -796,6 +796,11 @@
   position: relative;
   text-align: center;
   align-items: center;
+  text-wrap: nowrap;
+}
+
+.status-bar li a {
+  width: 100%;
 }
 
 .status-bar li:last-child {
