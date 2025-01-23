@@ -17,7 +17,7 @@
 <section class="login-sec">
     <div class="login-container">
         <!-- Logo Section -->
-        <div class="vsl-logo text-center">
+        <div class="vsl-logo text-center" style="padding-left: 5rem;">
             <a href="{% url 'home:home' %}">
                 <img src="{% static 'lead-maker/images/logo-dark.svg' %}" alt="LeadMaker Logo">
             </a>
@@ -32,7 +32,7 @@
         <form method="POST" id="login-form" class="form-block">
             {% csrf_token %}
             
-            <div class="mb-3">
+            <div class="" style="margin-bottom: 2.5rem;">
                 <label for="email"  style="font-size: 1.8rem; font-weight: 600; color: #344054; margin-bottom: 9px; font-family: 'Plus Jakarta Sans', sans-serif;" >Email address:</label>
                 <input type="email" name="email"  placeholder="Email" class="form-control" id="email" aria-describedby="emailHelp">
             </div>
