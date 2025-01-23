@@ -369,6 +369,11 @@
  
   }
 
+  .status-bar li:nth-child(3)::before {
+    width: 140%;
+    left: 115%;
+  }
+
 
   .lead-container-new {
     padding: 43px 23px;
