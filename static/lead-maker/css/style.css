@@ -1353,9 +1353,9 @@
   font-weight: 500;
   font-size: larger;
 }
-.lead-table tr {
+/* .lead-table tr {
   height: 100px;
-}
+} */
 .lead-table tr td:first-child {
   width: 135px;
 }
