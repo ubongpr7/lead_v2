@@ -744,10 +744,10 @@
 }
 
 .status-bar li a::before {
-  background: blue;
+  background: red;
   height: 10px;
   width: 105%;
-  z-index: 1;
+  z-index: 3;
   bottom: -40px;
   left: 105%;
   transform: translateX(-50%);
