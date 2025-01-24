@@ -19,6 +19,10 @@
   max-width: 90%;
 }
 
+.instruction {
+  animation: slideDown 0.3s ease-out;
+}
+
 .instruction h3 {
   font-size: 1.1em;
 }
@@ -29,6 +33,18 @@
 
 .hidden {
   display: none;
+  animation: slideUp 0.3s ease-in;
+}
+
+
+@keyframes slideDown {
+    from { transform: translateY(-20%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+@keyframes slideUp {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-20%); opacity: 0; }
+
 }
 
 </style>
@@ -97,7 +113,7 @@
             <p style="font-weight: bolder; color: rgba(17, 17, 17, 0.7); font-size: 16px;">Assign a Video Clip:</p>
             <p>Choose a video clip from your uploads.</p>
             <p>Drag and drop or assign the clip to the highlighted words.</p>
-            <a href="#" style="display: flex; justify-content: center;">Watch Video Tutorial</a>
+            <a href="#" class="btn proceed-btnstyle="display: flex; justify-content: center;">Watch Video Tutorial</a>
               
           </div>
         </div>
