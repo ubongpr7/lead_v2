@@ -38,6 +38,10 @@
   animation: slideUp 0.3s ease-in;
 }
 
+.rotate {
+  rotate: 90deg;
+}
+
 
 @keyframes slideDown {
     from { transform: translateY(-20%); opacity: 0; }
@@ -83,12 +87,10 @@
           </a>
         </div>
         <div style="position: relative; width: 45%;  background-color: #fff; height: fit-content;">
-          <div class="btn proceed-btn"  id="toggleInstruction" onclick="showInstruction()" style="width: 100%; cursor: pointer; font-size: 1.8rem; font-weight: 600; background-color: transparent; border: 1px solid #3663ff;">
-            <span style="color: black; font-size: 1.8rem; font-weight: 600;">Instructions</span>
-            <span  style="color: #fff;">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-              </svg>              
+          <div class="btn proceed-btn"  id="toggleInstruction" onclick="showInstruction()" style="display: flex; align-items: center; justify-content: space-between; width: 50%; cursor: pointer; font-size: 1.8rem; font-weight: 600; background-color: transparent; border: 1px solid #3663ff;">
+            <span style="color: #3663ff; font-size: 1.8rem; font-weight: 600;">Instructions</span>
+            <span  style="color: #3663ff; transition: all 0.3ms ease;" id="arrow">
+              ▶           
             </span>
           </div>
           <div class="instruction hidden" id="instruction"  style=" width: 100%; background-color: transparent; z-index: 5; border-radius: 8px; padding: 2rem;">
@@ -527,7 +529,9 @@ const instructionDiv = document.getElementById("instruction")
 
 function showInstruction () {
   const instructionContainer = document.getElementById("instruction")
+  const arrow = document.getElementById("arrow")
   instructionContainer.classList.toggle('hidden')
+  arrow.classList.toggle('rotate')
 }
 
   
