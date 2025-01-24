@@ -27,7 +27,9 @@
   font-size: 1em;
 }
 
-
+.hidden {
+  display: none;
+}
 
 </style>
 <div class="content contain">
@@ -63,7 +65,7 @@
           </a>
         </div>
         <div style="position: relative; width: 45%;">
-          <div class="btn proceed-btn" style="width: 100%; cursor: pointer; font-size: 1.8rem; font-weight: 600;">
+          <div class="btn proceed-btn" id="toggleInstruction" onclick="showInstruction()" style="width: 100%; cursor: pointer; font-size: 1.8rem; font-weight: 600;">
             <span style="color: #fff; font-size: 1.8rem; font-weight: 600;">Instructions</span>
             <span  style="color: #fff;">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -71,7 +73,7 @@
               </svg>              
             </span>
           </div>
-          <div class="instruction" id="instruction"  style=" position: absolute; top: 5rem; left: 0; right: 0; width: 100%; background-color: white; z-index: 5; border-radius: 8px; height: fit-content;  overflow: scroll; padding: 2rem; height: 40rem;">
+          <div class="instruction hidden" id="instruction"  style=" position: absolute; top: 5rem; left: 0; right: 0; width: 100%; background-color: white; z-index: 5; border-radius: 8px; height: fit-content;  overflow: scroll; padding: 2rem; height: 40rem;">
             <div class="bor" style="border: 1px solid #cccccc;"></div>
             <h3>Step 1: Add Your Subtitles</h3>
             <p>Start by typing your script into the subtitle box.</p>
@@ -456,28 +458,30 @@ function hidePopup() {
 
 document.querySelector('.close-popup img').addEventListener('click', hidePopup);
 
-document.addEventListener("DOMContentLoaded", () => {
-  const proceedBtn = document.querySelector(".proceed-btn");
-  const instructionDiv = document.querySelector("#instruction");
 
-  // Initially hide the instruction div
-  instructionDiv.style.display = "none";
 
-  // Toggle functionality
-  proceedBtn.addEventListener("click", () => {
-    if (instructionDiv.style.display === "none") {
-      // Show the instruction div
-      instructionDiv.style.display = "flex";
-      instructionDiv.style.animation = "slideDown 0.3s ease-out";
-    } else {
-      // Hide the instruction div
-      instructionDiv.style.animation = "slideUp 0.3s ease-in";
-      setTimeout(() => {
-        instructionDiv.style.display = "none";
-      }, 300); // Match animation duration
-    }
-  });
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   const proceedBtn = document.querySelector(".proceed-btn");
+//   const instructionDiv = document.querySelector("#instruction");
+
+//   // Initially hide the instruction div
+//   instructionDiv.style.display = "none";
+
+//   // Toggle functionality
+//   proceedBtn.addEventListener("click", () => {
+//     if (instructionDiv.style.display === "none") {
+//       // Show the instruction div
+//       instructionDiv.style.display = "flex";
+//       instructionDiv.style.animation = "slideDown 0.3s ease-out";
+//     } else {
+//       // Hide the instruction div
+//       instructionDiv.style.animation = "slideUp 0.3s ease-in";
+//       setTimeout(() => {
+//         instructionDiv.style.display = "none";
+//       }, 300); // Match animation duration
+//     }
+//   });
+// });
 
 // Add CSS for smooth slide animations
 const style = document.createElement("style");
@@ -500,6 +504,13 @@ document.head.appendChild(style);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
 <script>
 
+const proceedBtn = document.querySelector(".proceed-btn")
+const instructionDiv = document.getElementById("instruction")
+
+function showInstruction () {
+  const instructionContainer = document.getElementById("instruction")
+  instructionContainer.classList.toggle('hidden')
+}
 
   
 function savedInputChangeFunc(id) {
