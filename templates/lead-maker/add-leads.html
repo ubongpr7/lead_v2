@@ -574,35 +574,72 @@ function showSuccessMessage(message) {
 }
 
 let currentNumber = document.getElementById('no_of_slides').value
-function deleteSavedSlide(clipId,btn) {
-  if (btn.disabled){
+// function deleteSavedSlide(clipId,btn) {
+//   if (btn.disabled){
 
-  }else{
-    btn.style.cursor='wait'
-    btn.disabled=true
-      btn.disabled=true
-          $.ajax({
-              url: '/text/delete-clip/' + clipId + '/', 
-              type: 'DELETE', 
-              headers: {
-                  'X-CSRFToken': '{{ csrf_token }}'
-              },
-              success: function(response) {
-                var row = btn.parentNode.parentNode;
-                row.parentNode.removeChild(row);
-                // document.getElementById(`tr_${clipId}`).style.display='none'
-    updateSubtitleNumbers(document.getElementById('leadsTable').getElementsByTagName('tbody')[0])
+//   }else{
+//     btn.style.cursor='wait'
+//     btn.disabled=true
+//       btn.disabled=true
+//           $.ajax({
+//               url: '/text/delete-clip/' + clipId + '/', 
+//               type: 'DELETE', 
+//               headers: {
+//                   'X-CSRFToken': '{{ csrf_token }}'
+//               },
+//               success: function(response) {
+//                 var row = btn.parentNode.parentNode;
+//                 row.parentNode.removeChild(row);
+//                 // document.getElementById(`tr_${clipId}`).style.display='none'
+//     updateSubtitleNumbers(document.getElementById('leadsTable').getElementsByTagName('tbody')[0])
 
-              },
-              error: function(xhr, status, error) {
-                  alert("Error deleting music: " + error);
-              }
-          });
+//               },
+//               error: function(xhr, status, error) {
+//                   alert("Error deleting music: " + error);
+//               }
+//           });
       
-        }
+//         }
 
-  }
+//   }
     
+function deleteSavedSlide(clipId, btn) {
+  if (btn.disabled) return; // Prevent duplicate clicks
+
+  btn.style.cursor = 'wait';
+  btn.disabled = true;
+
+  $.ajax({
+    url: `/text/delete-clip/${clipId}/`,
+    type: 'DELETE',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    success: function (response) {
+      const row = btn.closest('tr'); // Find the nearest <tr> element
+      if (row) {
+        row.parentNode.removeChild(row); // Remove the row from the table
+        updateSubtitleNumbers(
+          document.getElementById('leadsTable').getElementsByTagName('tbody')[0]
+        );
+      } else {
+        console.error('Row not found for deletion.');
+      }
+    },
+    error: function (xhr, status, error) {
+      btn.disabled = false; // Re-enable the button in case of error
+      btn.style.cursor = 'pointer';
+      alert('Error deleting slide: ' + error);
+    },
+    complete: function () {
+      // Restore button state even if request fails
+      btn.style.cursor = 'pointer';
+      btn.disabled = false;
+    }
+  });
+}
+
+
 function deleteSlide(btn) {
     var row = btn.parentNode.parentNode;
     row.parentNode.removeChild(row);
