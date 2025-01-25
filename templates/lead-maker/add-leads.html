@@ -42,6 +42,11 @@
   rotate: 90deg;
 }
 
+.list-of-tags li {
+  font-size: 1.5rem; 
+  border-color: #3663FF;
+}
+
 
 @keyframes slideDown {
     from { transform: translateY(-20%); opacity: 0; }
@@ -147,7 +152,7 @@
                               <ul style="margin: 0;" id="list-of-tags_{{forloop.counter}}" class="list-of-tags">
       
                                   {% for subclip in clip.subclips.all %}
-                                  <li data-id="{{subclip.id}}" style="font-size: 1.5rem; border-color: #3663FF;"  
+                                  <li data-id="{{subclip.id}}" class="subtitle_clip" style="font-size: 1.5rem; border-color: #3663FF;"  
                                     data-current_file="{{subclip.get_video_file_name}}"
                                     id="saved_li_{{subclip.id}}"
                                         onclick="editCurrentLi(this)">
