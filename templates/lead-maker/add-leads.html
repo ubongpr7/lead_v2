@@ -574,37 +574,46 @@ function showSuccessMessage(message) {
 }
 
 let currentNumber = document.getElementById('no_of_slides').value
-function deleteSavedSlide(clipId,btn) {
-  if (btn.disabled){
 
-  }else{
-    btn.style.cursor='wait'
-    btn.disabled=true
-      btn.disabled=true
-          $.ajax({
-              url: '/text/delete-clip/' + clipId + '/', 
-              type: 'DELETE', 
-              headers: {
-                  'X-CSRFToken': '{{ csrf_token }}'
-              },
-              success: function(response) {
-                var row = btn.parentNode.parentNode;
-                row.parentNode.removeChild(row);
-                // document.getElementById(`tr_${clipId}`).style.display='none'
-    updateSubtitleNumbers(document.getElementById('leadsTable').getElementsByTagName('tbody')[0])
+function deleteSavedSlide(clipId, btn) {
+  if (btn.disabled) return; // Prevent duplicate clicks
 
-              },
-              error: function(xhr, status, error) {
-                  alert("Error deleting music: " + error);
-              }
-          });
-      
-        }
+  btn.style.cursor = 'wait';
+  btn.disabled = true;
 
-  }
-    
+  $.ajax({
+    url: `/text/delete-clip/${clipId}/`,
+    type: 'DELETE',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    success: function (response) {
+      const row = btn.closest('tr'); 
+      if (row) {
+        row.parentNode.removeChild(row); 
+        updateSubtitleNumbers(
+          document.getElementById('leadsTable').getElementsByTagName('tbody')[0]
+        );
+      } else {
+        console.error('Row not found for deletion.');
+      }
+    },
+    error: function (xhr, status, error) {
+      btn.disabled = false; 
+      btn.style.cursor = 'pointer';
+      alert('Error deleting slide: ' + error);
+    },
+    complete: function () {
+      btn.style.cursor = 'pointer';
+      btn.disabled = false;
+    }
+  });
+}
+
+
 function deleteSlide(btn) {
-    var row = btn.parentNode.parentNode;
+    const row = btn.closest('tr'); 
+
     row.parentNode.removeChild(row);
     edit=false
 
