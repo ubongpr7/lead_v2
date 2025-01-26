@@ -612,7 +612,8 @@ function deleteSavedSlide(clipId, btn) {
 
 
 function deleteSlide(btn) {
-    var row = btn.parentNode.parentNode;
+    const row = btn.closest('tr'); 
+
     row.parentNode.removeChild(row);
     edit=false
 
