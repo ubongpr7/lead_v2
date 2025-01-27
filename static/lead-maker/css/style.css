@@ -914,7 +914,7 @@
 }
 .custum-browse p {
   font-size: 1.4rem;
-  width: calc(100% - 190px);
+  /* width: calc(100% - 190px); */
   margin-bottom: 0;
 }
 .browse-field .form-control {
