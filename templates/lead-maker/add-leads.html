@@ -1045,87 +1045,6 @@ function handleEnterToHide(currentNumber,) {
       });
   }
     
-// function handleEnterToHide(currentNumber,) {
-//   edit =false
-//     const textarea = document.getElementById(`slide_text_${currentNumber}`);
-    
-//     const wrapper = document.getElementById(`wrapper_${currentNumber}`);
-//     const slide_span = document.getElementById(`slide_span_${currentNumber}`);
-//     const edit_ = document.getElementById(`edit_${currentNumber}`);
-//     const delete_ = document.getElementById(`delete_${currentNumber}`);
-//     const reset_ = document.getElementById(`reset_${currentNumber}`);
-//     let clip_id=slide_span.dataset.id
-//     textarea.addEventListener('keydown', function (event) {
-//         if (event.key === 'Enter') {
-//             event.preventDefault();
-
-//             if (textarea.value) {
-                
-//                 const payload = JSON.stringify({
-//                     text: textarea.value, // Send the textarea value
-//                 });
-
-//                 const xhr = new XMLHttpRequest();
-//                 xhr.addEventListener('load', function () {
-//                     if (xhr.status === 200) {
-//                         const response = JSON.parse(xhr.responseText);
-//                         if (!response.new){
-//                           if (response.changed){
-//                             slide_span.textContent = textarea.value;
-//                             deleteAllLi(currentNumber)
-
-//                           }
-//                             textarea.style.display = 'none';
-//                             wrapper.style.display = 'flex';
-//                             edit_.style.display = 'flex';
-//                         }
-//                         else{
-//                           textarea.style.display = 'none';
-//                           wrapper.style.display = 'flex';
-//                           edit_.style.display = 'flex';
-//                           slide_span.textContent = textarea.value;
-//                         }
-//                         if (response.success) {
-//                             slide_span.dataset.id=response.id
-//                             clip_id=response.id
-//                             if (reset_){
-//                               reset_.onclick= function () {
-//                                 subclipReset(clip_id);
-//                               };
-//                               reset_.style.display='flex'
-//                               delete_.onclick=function () {
-//                                 deleteSavedSlide(clip_id,delete_);
-
-//                             };
-//                           };
-
-//                             showSuccessMessage(`Subtitle submitted successfully!`);
-
-//                         } else {
-//                             alert(response.error || 'Failed to submit the text.');
-//                         }
-//                     } else {
-//                         alert('An error occurred while submitting the text.');
-//                     }
-//                 });
-
-//                 xhr.addEventListener('error', function () {
-//                     alert('An error occurred during the request.');
-//                 });
-//                 if (clip_id){
-                  
-//                   xhr.open('POST', `/text/edit_text_clip_line/${clip_id}/`);
-//                 }else{
-                  
-//                   xhr.open('POST', `/text/add_text_clip_line/{{text_file.id}}/`);
-//                 }
-//                 xhr.setRequestHeader('Content-Type', 'application/json');
-//                 xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-//                 xhr.send(payload);
-//             }
-//         }
-//     });
-// }
 
   function EditeSlide(currentNumber) {
     edit=true
@@ -1305,7 +1224,7 @@ if (areAllTextareasHidden()) {
     const spanElement = document.getElementById(`slide_span_${formClipID}`);
     const liItem=document.getElementById(`saved_li_${formClipID}`);
     const current_li= document.getElementById(`current_li_${sessionStorage.getItem('cNumber')}`);
-    console.log(sessionStorage.getItem('cNumber'))
+    console.log("sessionStorage.getItem('cNumber')",sessionStorage.getItem('cNumber'))
     if(liItem){
         liItem.disabled=false
         liItem.style.cursor='pointer'
