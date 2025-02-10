@@ -527,7 +527,7 @@ function updateBackendOrder() {
      if (rows.length > 40) {
              console.log(rows.length)
                  $.ajax({
-                     url: `/text/check-subtitles/{{textfile.id}}/`,
+                     url: `/text/check-subtitles/{{text_file.id}}/`,
                      method: 'GET',
                      success: function(response) {
                          if (response.status === 'error') {
@@ -910,7 +910,7 @@ function updateSubtitleNumbers(tableBody) {
 
 function subclipReset(mainId) {
         
-            const textfileID = "{{textfile.id}}"
+            const textfileID = "{{text_file.id}}"
             const url = `/text/reset_subclip/${mainId}/`;
 
             if (confirm("Are You Sure You Want To Reset This Sentence?")) {
@@ -1032,7 +1032,7 @@ function handleEnterToHide(currentNumber,) {
                           xhr.open('POST', `/text/edit_text_clip_line/${clip_id}/`);
                         }else{
                           
-                          xhr.open('POST', `/text/add_text_clip_line/{{textfile.id}}/`);
+                          xhr.open('POST', `/text/add_text_clip_line/{{text_file.id}}/`);
                         }
                         xhr.setRequestHeader('Content-Type', 'application/json');
                         xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
