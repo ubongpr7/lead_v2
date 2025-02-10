@@ -1241,7 +1241,7 @@ function handleSelection(cNumber) {
                 document.getElementById(`highlightable_${cNumber}`).addEventListener("mouseup", function () {
                   const selection = window.getSelection();
                   clip_Id=span.dataset.id
-                  if (!clip_Id){
+                  if (clip_Id==null){
                     return
                   }
                   console.log('clipid: ',clip_Id)
