@@ -958,9 +958,6 @@ function subclipReset(mainId) {
 }
 
 
-
-
-
 function handleEnterToHide(currentNumber,) {
         edit =false
       const textarea = document.getElementById(`slide_text_${currentNumber}`);
@@ -977,6 +974,8 @@ function handleEnterToHide(currentNumber,) {
       textarea.style.display = 'none';
       wrapper.style.display = 'flex';
       edit_.style.display = 'flex';
+      slide_span.textContent = textarea.value;
+
       textarea.addEventListener('keydown', function (event) {
           if (event.key === 'Enter') {
               event.preventDefault();
