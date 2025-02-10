@@ -57,6 +57,13 @@
   to { transform: translateY(-20%); opacity: 0; }
 
 }
+#leadsTable tbody td:first-child {
+    cursor: grab; 
+}
+
+#leadsTable tbody td:first-child:active {
+    cursor: grabbing;
+}
 
 </style>
 <div class="content contain">
@@ -141,8 +148,8 @@
           <tbody>
             {% if clips %}
             {% for clip in clips %}
-            <tr style="height: 5rem;" data-id="{{clip.id}}" id="tr_{{clip.id}}">
-              <td style="width: 18%; text-wrap: nowrap; font-size: 1.8rem;">Subtitle {{ forloop.counter }}</td>
+            <tr  style="height: 5rem;" data-id="{{clip.id}}" id="tr_{{clip.id}}">
+              <td data-tooltip="Hold, Drag To Reorder" style="width: 18%; text-wrap: nowrap; font-size: 1.8rem;">Subtitle {{ forloop.counter }}</td>
                 <td id="highlightable_{{forloop.counter}}" style="width: 64%;">
                   <div>
 
