@@ -237,6 +237,11 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+
 <style>
   #plansPopup {
     padding: 46px;
@@ -527,6 +532,81 @@ document.head.appendChild(style);
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+
+<script>
+
+  $(document).ready(function () {
+   let tableBody = document.querySelector("#leadsTable tbody");
+
+   $("#leadsTable tbody").sortable({
+       axis: "y",
+       containment: "parent",
+       handle: "td:first-child", 
+       update: function (event, ui) {
+           updateSubtitleNumbers(tableBody); 
+           updateBackendOrder();
+       }
+   });
+
+});
+function updateBackendOrder() {
+     let subtitles = [];
+     $("#leadsTable tbody tr").each(function (index) {
+         subtitles.push({
+             id: $(this).data("id"), 
+             position: index + 1
+         });
+     });
+
+     $.ajax({
+         url: "/text/update-subtitle-positions/", 
+         type: "POST",
+         data: JSON.stringify({ subtitles: subtitles }),
+         contentType: "application/json",
+         headers: { "X-CSRFToken": getCSRFToken() },
+         success: function (response) {
+             console.log("Positions updated successfully");
+         },
+         error: function (xhr, status, error) {
+             console.error("Error updating positions:", error);
+         }
+     });
+ }
+
+ function getCSRFToken() {
+     return document.querySelector("[name=csrfmiddlewaretoken]").value;
+ }
+
+ function checkSubtitlesLength() {
+     let tableBody = document.querySelector("#leadsTable tbody");
+     let rows = tableBody.getElementsByTagName("tr");
+     if (rows.length > 40) {
+             console.log(rows.length)
+                 $.ajax({
+                     url: `/text/check-subtitles/{{textfile.id}}/`,
+                     method: 'GET',
+                     success: function(response) {
+                         if (response.status === 'error') {
+                             alert(response.message); 
+                             return false 
+                         } else {
+                             console.log(response.message);
+                             return true
+                         }
+                     },
+                     error: function(xhr, status, error) {
+                         console.error("Error checking subtitles:", error);
+                     }
+                 });
+             
+     }else {
+         return true
+     }
+ }
+
+
+</script>
+ 
 <script>
 
 const proceedBtn = document.querySelector(".proceed-btn")
@@ -580,15 +660,7 @@ function deleteSavedSlide(clipId, btn) {
 
   btn.style.cursor = 'wait';
   btn.disabled = true;
-
-  $.ajax({
-    url: `/text/delete-clip/${clipId}/`,
-    type: 'DELETE',
-    headers: {
-      'X-CSRFToken': '{{ csrf_token }}'
-    },
-    success: function (response) {
-      const row = btn.closest('tr'); 
+  const row = btn.closest('tr'); 
       if (row) {
         row.parentNode.removeChild(row); 
         updateSubtitleNumbers(
@@ -597,6 +669,14 @@ function deleteSavedSlide(clipId, btn) {
       } else {
         console.error('Row not found for deletion.');
       }
+  $.ajax({
+    url: `/text/delete-clip/${clipId}/`,
+    type: 'DELETE',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    success: function (response) {
+      
     },
     error: function (xhr, status, error) {
       btn.disabled = false; 
@@ -623,24 +703,25 @@ function deleteSlide(btn) {
 function addSlide() {
   
     let currentNumber = document.getElementById('no_of_slides').value;
-    if (currentNumber >0){
-      const slide_text_=document.getElementById(`slide_text_${currentNumber}`)
-      if (slide_text_){
-        if(slide_text_.style.display !='none'){
-          if (slide_text_.value === ''){
-            alert('Fill the Empty Text Area')
-            return
-          }else{
-            handleAutomateToHide(currentNumber)
+    // if (currentNumber >0){
+    //   const slide_text_=document.getElementById(`slide_text_${currentNumber}`)
+    //   if (slide_text_){
+    //     if(slide_text_.style.display !='none'){
+    //       if (slide_text_.value === ''){
+    //         alert('Fill the Empty Text Area')
+    //         return
+    //       }else{
+    //         handleAutomateToHide(currentNumber)
 
 
-          }
+    //       }
           
-        }
+    //     }
 
-      }
-    }
-  edit=true
+    //   }
+    // }
+ 
+    edit=true
 
     var table = document.getElementById('leadsTable').getElementsByTagName('tbody')[0];
     if (checkRowCount(table)){
@@ -720,11 +801,10 @@ function addSlide() {
 }
 function checkRowCount(tableBody) {
     var rowCount = tableBody.rows.length;
-    const userPlan = "{{user.subscription.plan.name}}".toLowerCase(); // Convert to lowercase
-    const unlimitedPlans = ['premium','admin']; // Plans should also be lowercase for comparison
+    const userPlan = "{{user.subscription.plan.name}}".toLowerCase();
+    const unlimitedPlans = ['premium','admin']; 
     console.log(userPlan);
 
-    // Check if userPlan is not in unlimitedPlans
     if (rowCount >= 15 && !unlimitedPlans.includes(userPlan)) {
         console.log("Row count exceeded 15!");
         alert("Your Current Package Only Allows You To Add 15 Slide Please Upgrade To Unlock Unlimited Slides");
@@ -754,12 +834,15 @@ function updateSubtitleNumbers(tableBody) {
     const delete_ = document.getElementById(`delete_${currentNumber}`);
     const reset_ = document.getElementById(`reset_${currentNumber}`);
     let clip_id = slide_span.dataset.id;
+    const check=checkSubtitlesLength();
 
     if (textarea.value) {
         
 
         const payload = JSON.stringify({
-            text: textarea.value, // Send the textarea value
+            text: textarea.value,
+            position:rows.length+1
+
         });
 
         const xhr = new XMLHttpRequest();
@@ -850,7 +933,8 @@ function subclipReset(mainId) {
                     });
             }
         }
-        function deleteAllLi(cNumber) {
+
+ function deleteAllLi(cNumber) {
   const ul = document.getElementById(`list-of-tags_${cNumber}`); // Get the <ul> element by ID
   if (ul) {
     // Select all <li> elements within the <ul>
@@ -863,87 +947,182 @@ function subclipReset(mainId) {
   }
 }
 
+
+
+
+
 function handleEnterToHide(currentNumber,) {
-  edit =false
-    const textarea = document.getElementById(`slide_text_${currentNumber}`);
-    
-    const wrapper = document.getElementById(`wrapper_${currentNumber}`);
-    const slide_span = document.getElementById(`slide_span_${currentNumber}`);
-    const edit_ = document.getElementById(`edit_${currentNumber}`);
-    const delete_ = document.getElementById(`delete_${currentNumber}`);
-    const reset_ = document.getElementById(`reset_${currentNumber}`);
-    let clip_id=slide_span.dataset.id
-    textarea.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
+        edit =false
+      const textarea = document.getElementById(`slide_text_${currentNumber}`);
+      
+      const wrapper = document.getElementById(`wrapper_${currentNumber}`);
+      const slide_span = document.getElementById(`slide_span_${currentNumber}`);
+      const edit_ = document.getElementById(`edit_${currentNumber}`);
+      const delete_ = document.getElementById(`delete_${currentNumber}`);
+      const reset_ = document.getElementById(`reset_${currentNumber}`);
+      let clip_id=slide_span.dataset.id
+      let tableBody = document.querySelector("#leadsTable tbody");
+      let rows = tableBody.getElementsByTagName("tr");
+      textarea.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') {
+              event.preventDefault();
+              const check=checkSubtitlesLength();
 
-            if (textarea.value) {
-                
-                const payload = JSON.stringify({
-                    text: textarea.value, // Send the textarea value
-                });
+                if (check){
 
-                const xhr = new XMLHttpRequest();
-                xhr.addEventListener('load', function () {
-                    if (xhr.status === 200) {
-                        const response = JSON.parse(xhr.responseText);
-                        if (!response.new){
-                          if (response.changed){
-                            slide_span.textContent = textarea.value;
-                            deleteAllLi(currentNumber)
-
-                          }
-                            textarea.style.display = 'none';
-                            wrapper.style.display = 'flex';
-                            edit_.style.display = 'flex';
+                    if (textarea.value) {
+                        
+                        const payload = JSON.stringify({
+                            text: textarea.value,
+                            position:rows.length+1
+                        });
+        
+                        const xhr = new XMLHttpRequest();
+                        xhr.addEventListener('load', function () {
+                            if (xhr.status === 200) {
+                                const response = JSON.parse(xhr.responseText);
+                                if (!response.new){
+                                  if (response.changed){
+                                    slide_span.textContent = textarea.value;
+                                    deleteAllLi(currentNumber)
+        
+                                  }
+                                    textarea.style.display = 'none';
+                                    wrapper.style.display = 'flex';
+                                    edit_.style.display = 'flex';
+                                }
+                                else{
+                                  textarea.style.display = 'none';
+                                  wrapper.style.display = 'flex';
+                                  edit_.style.display = 'flex';
+                                  slide_span.textContent = textarea.value;
+                                }
+                                if (response.success) {
+                                    slide_span.dataset.id=response.id
+                                    clip_id=response.id
+                                    if (reset_){
+                                      reset_.onclick= function () {
+                                        subclipReset(clip_id);
+                                      };
+                                      reset_.style.display='flex'
+                                      delete_.onclick=function () {
+                                        deleteSavedSlide(clip_id,delete_);
+        
+                                    };
+                                  };
+        
+                                    showSuccessMessage(`Subtitle submitted successfully!`);
+        
+                                } else {
+                                    alert(response.error || 'Failed to submit the text.');
+                                }
+                            } else {
+                                alert('An error occurred while submitting the text.');
+                            }
+                        });
+        
+                        xhr.addEventListener('error', function () {
+                            alert('An error occurred during the request.');
+                        });
+                        if (clip_id){
+                          
+                          xhr.open('POST', `/text/edit_text_clip_line/${clip_id}/`);
+                        }else{
+                          
+                          xhr.open('POST', `/text/add_text_clip_line/{{textfile.id}}/`);
                         }
-                        else{
-                          textarea.style.display = 'none';
-                          wrapper.style.display = 'flex';
-                          edit_.style.display = 'flex';
-                          slide_span.textContent = textarea.value;
-                        }
-                        if (response.success) {
-                            slide_span.dataset.id=response.id
-                            clip_id=response.id
-                            if (reset_){
-                              reset_.onclick= function () {
-                                subclipReset(clip_id);
-                              };
-                              reset_.style.display='flex'
-                              delete_.onclick=function () {
-                                deleteSavedSlide(clip_id,delete_);
-
-                            };
-                          };
-
-                            showSuccessMessage(`Subtitle submitted successfully!`);
-
-                        } else {
-                            alert(response.error || 'Failed to submit the text.');
-                        }
-                    } else {
-                        alert('An error occurred while submitting the text.');
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                        xhr.send(payload);
                     }
-                });
-
-                xhr.addEventListener('error', function () {
-                    alert('An error occurred during the request.');
-                });
-                if (clip_id){
-                  
-                  xhr.open('POST', `/text/edit_text_clip_line/${clip_id}/`);
-                }else{
-                  
-                  xhr.open('POST', `/text/add_text_clip_line/{{text_file.id}}/`);
+               
                 }
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-                xhr.send(payload);
+
             }
-        }
-    });
-}
+      });
+  }
+    
+// function handleEnterToHide(currentNumber,) {
+//   edit =false
+//     const textarea = document.getElementById(`slide_text_${currentNumber}`);
+    
+//     const wrapper = document.getElementById(`wrapper_${currentNumber}`);
+//     const slide_span = document.getElementById(`slide_span_${currentNumber}`);
+//     const edit_ = document.getElementById(`edit_${currentNumber}`);
+//     const delete_ = document.getElementById(`delete_${currentNumber}`);
+//     const reset_ = document.getElementById(`reset_${currentNumber}`);
+//     let clip_id=slide_span.dataset.id
+//     textarea.addEventListener('keydown', function (event) {
+//         if (event.key === 'Enter') {
+//             event.preventDefault();
+
+//             if (textarea.value) {
+                
+//                 const payload = JSON.stringify({
+//                     text: textarea.value, // Send the textarea value
+//                 });
+
+//                 const xhr = new XMLHttpRequest();
+//                 xhr.addEventListener('load', function () {
+//                     if (xhr.status === 200) {
+//                         const response = JSON.parse(xhr.responseText);
+//                         if (!response.new){
+//                           if (response.changed){
+//                             slide_span.textContent = textarea.value;
+//                             deleteAllLi(currentNumber)
+
+//                           }
+//                             textarea.style.display = 'none';
+//                             wrapper.style.display = 'flex';
+//                             edit_.style.display = 'flex';
+//                         }
+//                         else{
+//                           textarea.style.display = 'none';
+//                           wrapper.style.display = 'flex';
+//                           edit_.style.display = 'flex';
+//                           slide_span.textContent = textarea.value;
+//                         }
+//                         if (response.success) {
+//                             slide_span.dataset.id=response.id
+//                             clip_id=response.id
+//                             if (reset_){
+//                               reset_.onclick= function () {
+//                                 subclipReset(clip_id);
+//                               };
+//                               reset_.style.display='flex'
+//                               delete_.onclick=function () {
+//                                 deleteSavedSlide(clip_id,delete_);
+
+//                             };
+//                           };
+
+//                             showSuccessMessage(`Subtitle submitted successfully!`);
+
+//                         } else {
+//                             alert(response.error || 'Failed to submit the text.');
+//                         }
+//                     } else {
+//                         alert('An error occurred while submitting the text.');
+//                     }
+//                 });
+
+//                 xhr.addEventListener('error', function () {
+//                     alert('An error occurred during the request.');
+//                 });
+//                 if (clip_id){
+                  
+//                   xhr.open('POST', `/text/edit_text_clip_line/${clip_id}/`);
+//                 }else{
+                  
+//                   xhr.open('POST', `/text/add_text_clip_line/{{text_file.id}}/`);
+//                 }
+//                 xhr.setRequestHeader('Content-Type', 'application/json');
+//                 xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+//                 xhr.send(payload);
+//             }
+//         }
+//     });
+// }
 
   function EditeSlide(currentNumber) {
     edit=true
@@ -971,6 +1150,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   }
 })
+
 function clearErrorMessages(){
         const errorElements = document.querySelectorAll('[id^="error"]');
         errorElements.forEach(element => {
@@ -1064,26 +1244,21 @@ function clearErrorMessages(){
   }
 
 }
+
 function areAllTextareasHidden() {
-  // Select all textarea elements
   const textareas = document.querySelectorAll('textarea');
 
-  // Loop through each textarea
   for (const textarea of textareas) {
-    // Get the computed style of the textarea
     const style = window.getComputedStyle(textarea);
 
-    // If any textarea's display is not 'none', return false
     if (style.display !== 'none') {
       return false;
     }
   }
 
-  // If the loop completes, all textareas are hidden
   return true;
 }
 
-// Example usage
 if (areAllTextareasHidden()) {
   console.log("All textareas are hidden.");
 } else {
@@ -1151,13 +1326,12 @@ function handleSelection(cNumber) {
                                 };
                                 num = span.dataset.num
                                 li.id=`current_li_${cNumber}`
-        
                             ul.insertBefore(li, span);
         
                             const remainingText = fullText.slice(selectedText.length).trim();
                             remainingInput.value = remainingText;
                             span.innerText = remainingText;
-                            openPopup(cNumber, selectedText, remainingText,clip_Id);
+                            openPopup(cNumber, selectedText, remainingText,clip_Id,li);
                             li.style.cursor='wait'
         
                             
@@ -1176,7 +1350,7 @@ function handleSelection(cNumber) {
         });
     }
     
-    function openPopup(cNumber, selectedText, remainingText,clip_Id) {
+    function openPopup(cNumber, selectedText, remainingText,clip_Id,liItem) {
     const modalContainer = document.getElementById('modal-cont');
     const popup = document.getElementById('add-subclip-popup');
     clearErrorMessages();
@@ -1237,7 +1411,7 @@ function handleSelection(cNumber) {
         popup.style.display = 'flex';
         document.getElementById(`add-subclip-form`).addEventListener('submit', (e) => {
             e.preventDefault();
-            attachValidation(`add-subclip-form`, cNumber,clip_Id);
+            attachValidation(`add-subclip-form`, cNumber,clip_Id,liItem);
         })
     }
 
@@ -1398,8 +1572,7 @@ function clearFileInput(){
         }
     }
 }
-  function attachValidation(formId, cNumber,clipId) {
-    const li = document.getElementById(`current_li_${cNumber}`);
+  function attachValidation(formId, cNumber,clipId,li) {
     if (li) {
         li.disabled = true;
         li.style.cursor = 'wait';
@@ -1497,4 +1670,6 @@ function clearFileInput(){
         };
     
  </script>
+
+
 {% endblock content %}

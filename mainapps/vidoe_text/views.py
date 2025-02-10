@@ -32,6 +32,40 @@ import tempfile
 import time
 
 
+@csrf_exempt
+def update_subtitle_positions(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            subtitles = data.get("subtitles", [])
+
+            for subtitle in subtitles:
+                TextLineVideoClip.objects.filter(id=subtitle["id"]).update(position=subtitle["position"])
+
+            return JsonResponse({"message": "Success"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+# views.py
+
+def check_subtitles_length(request, text_file_id):
+    text_file = get_object_or_404(TextFile, id=text_file_id)
+
+    subtitles = text_file.video_clips.all()
+
+    if len(subtitles) > 40:
+        total_characters = sum(len(subtitle.slide) for subtitle in subtitles)
+
+        if total_characters > 5000:
+            return JsonResponse({'status': 'error', 'message': 'Character limit exceeded!'})
+        
+        return JsonResponse({'status': 'success', 'message': 'Character limit okay.'})
+    
+    return JsonResponse({'status': 'success', 'message': 'Subtitle count is less than 50.'})
+
+
 def add_subcliphtmx(request, id):
     text_clip = get_object_or_404(TextLineVideoClip, id=id)
 

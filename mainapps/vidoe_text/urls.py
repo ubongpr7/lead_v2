@@ -42,6 +42,10 @@ urlpatterns = [
         views.delete_clip,
         name="delete_clip",
     ),
+    path('check-subtitles/<int:text_file_id>/', views.check_subtitles_length, name='check_subtitles_length'),
+    path("update-subtitle-positions/", views.update_subtitle_positions, name="update_subtitle_positions"),
+
+
     path("validate_api_key/", views.validate_api_keyv, name="validate_api_key"),
     # path("validate_api_key/", views.validate_api_keyv, name="validate_api_key"),
 
