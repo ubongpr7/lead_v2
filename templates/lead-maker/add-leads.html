@@ -141,7 +141,7 @@
           <tbody>
             {% if clips %}
             {% for clip in clips %}
-            <tr style="height: 5rem;" id="tr_{{clip.id}}">
+            <tr style="height: 5rem;" data-id="{{clip.id}}" id="tr_{{clip.id}}">
               <td style="width: 18%; text-wrap: nowrap; font-size: 1.8rem;">Subtitle {{ forloop.counter }}</td>
                 <td id="highlightable_{{forloop.counter}}" style="width: 64%;">
                   <div>
@@ -1268,31 +1268,65 @@ if (areAllTextareasHidden()) {
   console.log("At least one textarea is visible.");
 }
 
-    function closeModal() {
-      clearErrorMessages();
-        document.getElementById('add-subclip-popup').style.display = 'none';
+    // function closeModal() {
+    //   clearErrorMessages();
+    //     document.getElementById('add-subclip-popup').style.display = 'none';
         
-        const formClipID = document.getElementById('clipId').value;
-        const ulElement = document.getElementById(`list-of-tags_${formClipID}`);
-        const spanElement = document.getElementById(`slide_span_${formClipID}`);
-        const liItem=document.getElementById(`saved_li_${formClipID}`);
-        if (ulElement && ulElement.children.length > 1) {
-            const secondToLastLi = ulElement.children[ulElement.children.length - 2];
-            const secondToLastLiText = secondToLastLi.textContent;
+    //     const formClipID = document.getElementById('clipId').value;
+    //     const ulElement = document.getElementById(`list-of-tags_${formClipID}`);
+    //     const spanElement = document.getElementById(`slide_span_${formClipID}`);
+    //     const liItem=document.getElementById(`saved_li_${formClipID}`);
+    //     const current_li= document.getElementById(`current_li_${sessionStorage.getItem('cNumber')}`);
 
-            const spanText = spanElement.textContent.trim();
-            spanElement.textContent = `${secondToLastLiText} ${spanText}`
-            console.log("Last <li> text:", secondToLastLiText);
+    //     if (ulElement && ulElement.children.length > 1) {
+    //         const secondToLastLi = ulElement.children[ulElement.children.length - 2];
+    //         const secondToLastLiText = secondToLastLi.textContent;
 
-            ulElement.removeChild(secondToLastLi);
-        } else if(liItem){
-            liItem.disabled=false
-            liItem.style.cursor='pointer'
+    //         const spanText = spanElement.textContent.trim();
+    //         spanElement.textContent = `${secondToLastLiText} ${spanText}`
+    //         console.log("Last <li> text:", secondToLastLiText);
 
-        }else {
-            console.log("No <li> items found to remove.");
+    //         ulElement.removeChild(secondToLastLi);
+    //     } else if(liItem){
+    //         liItem.disabled=false
+    //         liItem.style.cursor='pointer'
+
+    //     }else {
+    //         console.log("No <li> items found to remove.");
+    //     }
+    // }
+    function closeModal() {
+    clearErrorMessages();
+   
+    document.getElementById('add-subclip-popup').style.display = 'none';
+    
+    const formClipID = document.getElementById('clipId').value;
+    const ulElement = document.getElementById(`list-of-tags_${formClipID}`);
+    const spanElement = document.getElementById(`slide_span_${formClipID}`);
+    const liItem=document.getElementById(`saved_li_${formClipID}`);
+    const current_li= document.getElementById(`current_li_${sessionStorage.getItem('cNumber')}`);
+    console.log(sessionStorage.getItem('cNumber'))
+    if(liItem){
+        liItem.disabled=false
+        liItem.style.cursor='pointer'
+
+    }else if (current_li) {
+    const text = current_li.textContent.trim(); 
+    const ul = current_li.closest("ul");
+    
+    if (ul) {
+        const span = ul.querySelector("span"); 
+        if (span) {
+            span.textContent = text + " " + span.textContent; 
         }
     }
+
+    current_li.remove(); 
+}
+    else {
+        console.log("No <li> items found to remove.");
+    }
+}
 
 function handleSelection(cNumber) {
               const wrapper = document.querySelector(`#wrapper_${cNumber}`);
@@ -1329,6 +1363,8 @@ function handleSelection(cNumber) {
                                 };
                                 num = span.dataset.num
                                 li.id=`current_li_${cNumber}`
+                            sessionStorage.setItem('cNumber',cNumber)
+
                             ul.insertBefore(li, span);
         
                             const remainingText = fullText.slice(selectedText.length).trim();
@@ -1615,6 +1651,12 @@ function clearFileInput(){
                             li.dataset.current_file=response.current_file
                             li.disabled = false;
                             li.style.cursor = 'pointer';
+                            
+                            const tr = li.closest("tr");
+                            if (tr) {
+                                tr.setAttribute("data-id", newId);
+                            }
+                            
                         }
                         
             
