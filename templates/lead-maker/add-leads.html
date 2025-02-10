@@ -1187,33 +1187,6 @@ if (areAllTextareasHidden()) {
   console.log("At least one textarea is visible.");
 }
 
-    // function closeModal() {
-    //   clearErrorMessages();
-    //     document.getElementById('add-subclip-popup').style.display = 'none';
-        
-    //     const formClipID = document.getElementById('clipId').value;
-    //     const ulElement = document.getElementById(`list-of-tags_${formClipID}`);
-    //     const spanElement = document.getElementById(`slide_span_${formClipID}`);
-    //     const liItem=document.getElementById(`saved_li_${formClipID}`);
-    //     const current_li= document.getElementById(`current_li_${sessionStorage.getItem('cNumber')}`);
-
-    //     if (ulElement && ulElement.children.length > 1) {
-    //         const secondToLastLi = ulElement.children[ulElement.children.length - 2];
-    //         const secondToLastLiText = secondToLastLi.textContent;
-
-    //         const spanText = spanElement.textContent.trim();
-    //         spanElement.textContent = `${secondToLastLiText} ${spanText}`
-    //         console.log("Last <li> text:", secondToLastLiText);
-
-    //         ulElement.removeChild(secondToLastLi);
-    //     } else if(liItem){
-    //         liItem.disabled=false
-    //         liItem.style.cursor='pointer'
-
-    //     }else {
-    //         console.log("No <li> items found to remove.");
-    //     }
-    // }
     function closeModal() {
     clearErrorMessages();
    
@@ -1535,6 +1508,8 @@ function clearFileInput(){
         li.disabled = true;
         li.style.cursor = 'wait';
         console.log(li, ' has been disabled');
+        li.id='processing_'+cNumber
+
     }
 
     const form = document.getElementById(formId);
