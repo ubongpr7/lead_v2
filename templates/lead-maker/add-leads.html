@@ -1157,9 +1157,7 @@ function clearErrorMessages(){
         } else {
             const form = document.getElementById('lead-form');
             if (form) {
-                // Uncomment the line below if the button needs to be disabled
-                // button.disabled = true
-
+                updateBackendOrder();
                 form.submit();
             } else {
                 console.error("Form with ID 'processFile' not found.");
