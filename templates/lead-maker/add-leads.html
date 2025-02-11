@@ -982,6 +982,9 @@ function handleEnterToHide(currentNumber,) {
       textarea.addEventListener('keydown', function (event) {
           if (event.key === 'Enter') {
               event.preventDefault();
+              if (textarea.value.trim() ===''){
+                return
+              }
               textarea.style.display = 'none';
               wrapper.style.display = 'flex';
               edit_.style.display = 'flex';
