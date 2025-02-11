@@ -963,6 +963,14 @@ function subclipReset(mainId) {
 
 
 
+function toggleColumns(li, shouldDisable) {
+    let $row = $(li).closest("tr"); 
+    let $nextCols = $row.find("td").slice(1, 4); 
+
+    $nextCols.find("input, select, textarea, button")
+        .prop("disabled", shouldDisable)
+        .css("background-color", shouldDisable ? "#d3d3d3" : "");
+}
 
 
 function handleEnterToHide(currentNumber,) {
