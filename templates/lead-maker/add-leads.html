@@ -485,6 +485,8 @@
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
   
 <script>
+        textFileResolution='{{textfile.resolution}}' 
+        const userPlan = "{{user.subscription.plan.name}}".toLowerCase(); 
 
   $(document).ready(function () {
    let tableBody = document.querySelector("#leadsTable tbody");
@@ -500,6 +502,42 @@
    });
 
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const maxTotalChars = 5000; // Define max total characters
+
+    function getTotalCharCount() {
+        let total = 0;
+        document.querySelectorAll("textarea").forEach(textarea => {
+            total += textarea.value.length;
+        });
+        return total;
+    }
+
+    document.addEventListener("input", (event) => {
+        if (event.target.tagName === "TEXTAREA") {
+            const maxPerTextarea = textFileResolution === "9:16" ? 50 : 100;
+            let currentTotalChars = getTotalCharCount();
+
+            // Prevent exceeding the total character limit
+            if (currentTotalChars > maxTotalChars) {
+                alert("Total character limit (5000) exceeded! Remove some text before adding more.");
+                
+                // Trim excess characters in real-time
+                let excessChars = currentTotalChars - maxTotalChars;
+                event.target.value = event.target.value.slice(0, event.target.value.length - excessChars);
+                return;
+            }
+
+            // Limit per textarea
+            if (event.target.value.length > maxPerTextarea) {
+                alert(`Max characters per subtitle is ${maxPerTextarea}.`);
+                event.target.value = event.target.value.slice(0, maxPerTextarea);
+            }
+        }
+    });
+});
+
 function updateBackendOrder() {
     let subtitles = [];
     $("#leadsTable tbody tr").each(function (index) {
@@ -1042,6 +1080,7 @@ function handleEnterToHide(currentNumber,) {
         
                                     };
                                   };
+                                  toggleColumns(textarea,false)
                                   updateBackendOrder()
                                     showSuccessMessage(`Subtitle submitted successfully!`);
         
@@ -1502,6 +1541,12 @@ function clearFileInput(){
                             li.dataset.current_file=response.current_file
                             li.disabled = false;
                             li.style.cursor = 'pointer';
+                            if (!response.exists_in_s3){
+                                    li.disabled = false;
+                                    li.style.cursor = 'pointer';
+                                    li.style.border='1px solid red';
+                                    alert('Please Reupload File For The Subclip With Red Border')
+                                }
                         
                         }
                         showSuccessMessage('Clip Updated Successfully!')
@@ -1572,10 +1617,16 @@ function clearFileInput(){
                         if (li) {
                             li.id = `saved_li_${newId}`;
                             li.dataset.id = newId;
-                
+                            
                             li.dataset.current_file=response.current_file
                             li.disabled = false;
                             li.style.cursor = 'pointer';
+                            if (!response.exists_in_s3){
+                                    li.disabled = false;
+                                    li.style.cursor = 'pointer';
+                                    li.style.border='1px solid red';
+                                    alert('Please Reupload File For The Subclip With Red Border')
+                                }
                             
                             
                         }

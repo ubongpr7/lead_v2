@@ -66,6 +66,36 @@ def check_subtitles_length(request, text_file_id):
     return JsonResponse({'status': 'success', 'message': 'Subtitle count is less than 50.'})
 
 
+
+def check_s3_file_exists_or_retry(bucket_name, s3_key, file_):
+    """Check if a file exists in S3, retry upload if missing."""
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+    )
+
+    try:
+        s3_client.head_object(Bucket=bucket_name, Key=s3_key)
+        logging.info(f'{s3_key} exists in S3')
+        return True  # File exists
+    except s3_client.exceptions.ClientError as e:
+        # Check if the error is "Not Found" (404)
+        if e.response['Error']['Code'] == '404':
+            try:
+                logging.info(f"File {s3_key} missing in S3, re-uploading...")
+                s3_client.upload_fileobj(file_, bucket_name, s3_key)
+                logging.info(f'{s3_key} now exists in S3')
+
+                return True  # Re-upload successful
+            except Exception as upload_error:
+                print(f"Retry upload failed: {upload_error}")
+                return False  # Upload failed
+        else:
+            print(f"Unexpected S3 error: {e}")
+            return False  # Some other S3 error occurred
+
+
 def add_subcliphtmx(request, id):
     text_clip = get_object_or_404(TextLineVideoClip, id=id)
 
@@ -103,6 +133,13 @@ def add_subcliphtmx(request, id):
                     video_file=file_,
                     main_line=text_clip,
                 )
+        
+        exists_in_s3=False
+        if file_ and subclip.video_file:
+            s3_key = subclip.video_file.name  # Get the S3 key
+            
+            exists_in_s3 = check_s3_file_exists_or_retry(settings.AWS_STORAGE_BUCKET_NAME, s3_key,file_)
+
 
         if subclip:
             text_clip.remaining = remaining
@@ -113,6 +150,7 @@ def add_subcliphtmx(request, id):
                     "success": True,
                     "id": subclip.id,
                     "current_file": subclip.get_video_file_name(),
+                    'exists_in_s3':exists_in_s3
                 }
             )
         return JsonResponse({"success": False, "error": "Failed to create subclip."}, status=400)
@@ -144,14 +182,22 @@ def edit_subcliphtmx(request,id):
                     print(e)
                     return JsonResponse({"success": False, "error": str(e)}, status=500)
             else:
-                subclip.video_file=file_
+                subclip.video_file.save(file_.name,file_)
+            
         
         subclip.save()
+        exists_in_s3=False
+        if file_ and subclip.video_file:
+            s3_key = subclip.video_file.name  # Get the S3 key
+            
+            exists_in_s3 = check_s3_file_exists_or_retry(settings.AWS_STORAGE_BUCKET_NAME, s3_key,file_)
+
 
         return JsonResponse({
             "success": True,
             "id": subclip.id,
                 "current_file": subclip.get_video_file_name(),
+                'exists_in_s3':exists_in_s3
             
             
         })
@@ -401,7 +447,7 @@ def process_background_music(request, textfile_id):
         
         no_of_mp3 = int(request.POST.get("no_of_mp3", 0))  # Number of MP3 files
         for music in textfile.background_musics.all():
-            music_file=request.POST.get(f'saved-mp3-{music.id}')
+            music_file=request.FILES.get(f'saved-mp3-{music.id}')
             start=request.POST.get(f'saved-starts-{music.id}')
             end=request.POST.get(f'saved-ends-{music.id}')
             volume=request.POST.get(f'saved-volume-{music.id}')
