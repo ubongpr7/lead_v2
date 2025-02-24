@@ -230,7 +230,7 @@
         </div>
         <div class="create-video d-flex justify-content-end">
           <button type="button" onclick="highlightNoSubclipIcons()"  class="btn proceed-btn">
-            Proceed To Background Music Selection
+            <span id="submitText">Proceed To Background Music Selection</span> 
             <img class="btn-arrow" src="{% static 'lead-maker/images/btn-arrow.svg' %}" alt="arrow" />
           </button>
         </div>
@@ -606,6 +606,37 @@ function updateBackendOrder() {
      }
  }
 
+
+ function startProcessingAnimation() {
+        const button_text = $('#submitText');
+        let dots = 0;
+
+        // Clear any existing interval to avoid multiple intervals running
+        if (button_text.data('intervalId')) {
+          clearInterval(button_text.data('intervalId'));
+        }
+
+        // Set the interval to change the text every 500 milliseconds
+        const intervalId = setInterval(function () {
+          dots = (dots + 1) % 4; // Cycle between 0, 1, 2, and 3
+          let loadingText = 'Processing' + '.'.repeat(dots); // Add dots dynamically
+          button_text.text(loadingText);
+        }, 500); // 500 milliseconds = 0.5 seconds
+
+        // Store the interval ID in the button text element for later use
+        button_text.data('intervalId', intervalId);
+      }
+
+function stopProcessingAnimation() {
+  const button_text = $('#submitText');
+  const intervalId = button_text.data('intervalId');
+
+  if (intervalId) {
+    clearInterval(intervalId);
+    button_text.data('intervalId', null);
+    button_text.text('Proceed To Background Music Selection'); 
+  }
+}
 
 </script>
  
@@ -1150,6 +1181,7 @@ function clearErrorMessages(){
 <!-- subclip  -->
 <script>
     async function fetchNoSubclipIds() {
+
         try {
             textfileId = "{{text_file.id}}"
             const url = `/text/check_text_clip/${textfileId}/`;
@@ -1178,6 +1210,7 @@ function clearErrorMessages(){
     function highlightNoSubclipIcons(button) {
     const tagBoxes = document.querySelectorAll('.tag-box');
     const spanIds = [];
+    startProcessingAnimation();
     tagBoxes.forEach(tagBox => {
         const span = tagBox.querySelector('ul span');
 
@@ -1213,11 +1246,13 @@ function clearErrorMessages(){
                         }
                     }
                 }
-            });
+                stopProcessingAnimation();
+              });
         } else {
             const form = document.getElementById('lead-form');
             if (form) {
                 updateBackendOrder();
+                
                 form.submit();
             } else {
                 console.error("Form with ID 'processFile' not found.");
