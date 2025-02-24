@@ -872,7 +872,7 @@ function toggleColumns(li, shouldDisable) {
 
   // Directly select the 3rd and 4th cells (index 2 and 3)
   const targetCells = [cells[2], cells[3]];  // Correctly target 3rd and 4th cells
-
+  console.log(targetCells)
   targetCells.forEach(cell => {
     if (cell) { // Check if the cell exists (important for rows with fewer cells)
       cell.style.backgroundColor = shouldDisable ? "#d3d3d3" : "";
