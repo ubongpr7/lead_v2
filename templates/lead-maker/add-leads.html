@@ -874,7 +874,7 @@ function toggleColumns(li, shouldDisable) {
   nextCols.forEach(cell => {
     cell.style.backgroundColor = shouldDisable ? "#d3d3d3" : "";
 
-    const elements = cell.querySelectorAll("a, button"); // Select within the cell
+    const elements = cell.querySelectorAll("a"); // Select within the cell
     elements.forEach(el => {
       el.disabled = shouldDisable;
       el.style.cursor = shouldDisable ? "wait" : "pointer";
