@@ -866,23 +866,26 @@ function updateSubtitleNumbers(tableBody) {
 <script>
 function toggleColumns(li, shouldDisable) {
   const row = li.closest("tr");
-  if (!row) return; // Handle cases where the row isn't found
+  if (!row) return;
 
   const cells = row.querySelectorAll("td");
-  const nextCols = Array.from(cells).slice(2, 4); // Convert to array for forEach
 
-  nextCols.forEach(cell => {
-    cell.style.backgroundColor = shouldDisable ? "#d3d3d3" : "";
+  // Directly select the 3rd and 4th cells (index 2 and 3)
+  const targetCells = [cells[2], cells[3]];  // Correctly target 3rd and 4th cells
 
-    const elements = cell.querySelectorAll("a"); // Select within the cell
-    elements.forEach(el => {
-      el.disabled = shouldDisable;
-      el.style.cursor = shouldDisable ? "wait" : "pointer";
-      el.style.pointerEvents = shouldDisable ? "none" : "auto";
-    });
+  targetCells.forEach(cell => {
+    if (cell) { // Check if the cell exists (important for rows with fewer cells)
+      cell.style.backgroundColor = shouldDisable ? "#d3d3d3" : "";
+
+      const elements = cell.querySelectorAll("a, button");
+      elements.forEach(el => {
+        el.disabled = shouldDisable;
+        el.style.cursor = shouldDisable ? "wait" : "pointer";
+        el.style.pointerEvents = shouldDisable ? "none" : "auto";
+      });
+    }
   });
 }
-
 
 
 
