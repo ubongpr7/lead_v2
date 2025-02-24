@@ -92,6 +92,16 @@
         </a>
         <h5 class="text-center lead-title">Create Your New Lead</h5>
       </div>
+      {%if textfile.trimmed_video%}
+      <figure class="video-place" style="background-color: white;" >
+        <div class="video-container">
+          <video id="video" height="400" controls>
+            <source src="{{textfile.trimmed_video.url}}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </figure>
+      {%endif%}
       <div style="display: flex; justify-content: space-between;">
         <div class="d-flex justify-content-start">
           <a href="#!" id="createLeadBtn" style="height: fit-content;" class="btn proceed-btn" onclick="addSlide()">
@@ -617,32 +627,6 @@ function hidePopup() {
 
 document.querySelector('.close-popup img').addEventListener('click', hidePopup);
 
-
-
-// document.addEventListener("DOMContentLoaded", () => {
-//   const proceedBtn = document.querySelector(".proceed-btn");
-//   const instructionDiv = document.querySelector("#instruction");
-
-//   // Initially hide the instruction div
-//   instructionDiv.style.display = "none";
-
-//   // Toggle functionality
-//   proceedBtn.addEventListener("click", () => {
-//     if (instructionDiv.style.display === "none") {
-//       // Show the instruction div
-//       instructionDiv.style.display = "flex";
-//       instructionDiv.style.animation = "slideDown 0.3s ease-out";
-//     } else {
-//       // Hide the instruction div
-//       instructionDiv.style.animation = "slideUp 0.3s ease-in";
-//       setTimeout(() => {
-//         instructionDiv.style.display = "none";
-//       }, 300); // Match animation duration
-//     }
-//   });
-// });
-
-// Add CSS for smooth slide animations
 const style = document.createElement("style");
 style.innerHTML = `
   @keyframes slideDown {
