@@ -829,13 +829,14 @@ function addSlide() {
             </td>
         `;
         document.getElementById(`slide_text_${currentNumber}`).focus()
-      toggleColumns(document.getElementById(`slide_text_${currentNumber}`), true)
 
     setTimeout(() => {
         handleEnterToHide(currentNumber,);
         handleSelection(currentNumber);
         updateSubtitleNumbers(table)
     }, 0); 
+    toggleColumns(document.getElementById(`slide_text_${currentNumber}`), true)
+
 }
 }
 function checkRowCount(tableBody) {
