@@ -5,160 +5,6 @@
 {% include "lead-maker/includes/header.html" %}
 
 {% include "lead-maker/accounts/new_messages.html" %}
-<!-- <style>
-  
-
-  .slider-container {
-    position: relative;
-    width: 98%;
-    height: 30px;
-    margin: 20px auto;
-  }
-  .slider-indicator {
-  position: absolute;
-  top: -20px; /* Position slightly above the slider */
-  width: 1px;
-  height: 40px; /* Matches slider height */
-  background-color: #5f83ff; /* Indicator color */
-  z-index: 3;
-  color: #333;
-  font-size: 0.8rem;
-  text-align: center;
-  line-height: 10px;
-  white-space: nowrap; /* Prevent text wrapping */
-  transform: translateX(-50%);
-  pointer-events: none; /* Ignore clicks */
-}
-
-  .slider-track {
- position: absolute;
- width: 100%;
-    height: 2.4rem;
-    background: #ddd;
-    /* top: 50%;  */
-    transform: translateY(-50%);
-  }
-
-  .slider-filled {
-    position: absolute;
-    /* height: 15px; */
-    z-index: 1;
-  }
-    
-
-  .slider-thumb {
-    position: absolute;
-    border-radius: 50%;
-    top: -40%;
-    cursor: pointer;
-    z-index: 2;
-
-  }
-
-  .slider-thumb.end {
-    /* background: #ff0000; */
-  }
-  #sliderEnd{
-  background: #5f83ff;
-  border:1px solid #cccbcb;
-
-  }
-  #sliderStart{
-  background: #cccbcb;
-  border:1px solid #5f83ff;
-
-  }
-
-  .error {
-    color: red;
-    margin-top: 10px;
-  }
-
-  #trimmedVideo {
-    display: none;
-    margin-top: 20px;
-  }
-  .video-place {
-  display: flex;
-  justify-content: center;
-  align-items: center; 
-  height: 100%; 
-  width: 100%; 
-  margin: 0 auto;
-  text-align: center;
-}
-
-</style> -->
-<!-- <style>
-  body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-}
-
-.video-container {
-  text-align: center;
-  margin-bottom: 20px;
-}
-.canvas-container {
-  display: flex;
-  justify-content: flex-start;
-  overflow-x: auto;
-  overflow-y: hidden; 
-  margin-bottom: 20px;
-  flex-wrap: nowrap;
-}
-
-.canvas-container .thumbnail {
-  margin: 0; 
-  flex-shrink: 0; 
-}
-
-
-.canvas-container .thumbnail {
-  /* border: 2px solid #ddd; */
-  /* border-radius: 4px; */
-  /* padding: 4px; */
-  cursor: pointer;
-}
-
-.canvas-container .thumbnail:hover {
-  border-color: #5f83ff;
-}
-.trimmer-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.trimmer-controls input[type="range"] {
-  flex: 1;
-  margin: 0 10px;
-}
-
-.trimmer-controls span {
-  font-size: 14px;
-  color: #333;
-}
-
-.btn {
-  background-color: #5f83ff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.btn.proceed-btn {
-  background-color: #28a745;
-}
-
-.btn:hover {
-  opacity: 0.8;
-}
-
-</style> -->
 
 <style>
   .trimmer-container {
@@ -244,6 +90,7 @@
           <a href="#!">Download</a>
         </li>
       </ul>
+
       <div class="lead-container-new" style="width: 100%; max-width: 1600px;">
         <div class="lead-header">
           <a href="/text" class="lead-back">
@@ -251,7 +98,7 @@
           </a>
           <h5 class="text-center lead-title"> Trim Your Video </h5>
         </div>
-        <form class="trim-form" action="." method="POST" enctype="multipart/form-data">
+        <form class="trim-form" id="trim-form" action="." method="POST" enctype="multipart/form-data">
           {% csrf_token %}
           <figure class="video-place" style="background-color: white;" >
             <div class="video-container">
@@ -519,6 +366,43 @@ function handleInteraction() {
   });
 
 });
+document.getElementById('trim-form').addEventListener('submit',(e)=>{
+  e.preventDefault();
+  startProcessingAnimation();
+  e.target.submit();
+  
+})
+
+function startProcessingAnimation() {
+        const button_text = $('#trimButton');
+        let dots = 0;
+
+        // Clear any existing interval to avoid multiple intervals running
+        if (button_text.data('intervalId')) {
+          clearInterval(button_text.data('intervalId'));
+        }
+
+        // Set the interval to change the text every 500 milliseconds
+        const intervalId = setInterval(function () {
+          dots = (dots + 1) % 4; // Cycle between 0, 1, 2, and 3
+          let loadingText = 'Processing' + '.'.repeat(dots); // Add dots dynamically
+          button_text.text(loadingText);
+        }, 500); // 500 milliseconds = 0.5 seconds
+
+        // Store the interval ID in the button text element for later use
+        button_text.data('intervalId', intervalId);
+      }
+
+function stopProcessingAnimation() {
+  const button_text = $('#trimButton');
+  const intervalId = button_text.data('intervalId');
+
+  if (intervalId) {
+    clearInterval(intervalId);
+    button_text.data('intervalId', null);
+    button_text.text('Trim Video'); 
+  }
+}
 
 
    </script>

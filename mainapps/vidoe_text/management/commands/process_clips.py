@@ -359,6 +359,51 @@ class Command(BaseCommand):
     
 
 # I'm
+    # def generate_subclip_videos_with_duration(self):
+        
+    #     extracted_times = self.extract_start_end(self.text_file_instance.generated_subclips_srt)
+    #     logging.debug(f"Extracted times: {extracted_times}")
+        
+    #     file_clips = []
+    #     clip_subclips = []
+    #     logging.debug("Starting to process video clips.")
+        
+    #     for clip in self.text_file_instance.video_clips.all():
+    #         logging.debug(f"Processing clip with ID: {clip.id}")
+    #         clip_subclip=[]
+    #         for subclip in clip.subclips.all():
+    #             clip_subclips.append(subclip)
+    #     if len(clip_subclips) != len(extracted_times):
+    #         logging.error("Mismatch between the number of clips and JSON fragments.")
+    #         raise ValueError("Mismatch between the number of clips and JSON fragments.")
+        
+    #     from decimal import Decimal
+    #     for i,subclip in enumerate(clip_subclips):
+    #         start,end=extracted_times[i]
+    #         subclip.start=Decimal(self.srt_time_to_float(start))
+    #         subclip.end=Decimal(self.srt_time_to_float(end))
+    #         subclip.save()
+    #     for clip in self.text_file_instance.video_clips.all():
+    #         clip_subclips = []
+    #         for subclip in clip.subclips.all():
+    #             logging.debug(f"Processing subclip with ID: {subclip.id}")
+    #             mv_clip = self.load_video_from_file_field(subclip.to_dict().get('video_path'))
+    #             clip_with_duration = mv_clip.set_duration(float(subclip.end - subclip.start))
+    #             logging.debug(f"Loaded video clip from path: {subclip.to_dict().get('video_path')}")
+    #             cropped_clip = self.crop_to_aspect_ratio_(clip_with_duration, MAINRESOLUTIONS[self.text_file_instance.resolution])
+    #             logging.debug(f"Cropped clip to resolution: {MAINRESOLUTIONS[self.text_file_instance.resolution]}")
+    #             clip_subclips.append(cropped_clip)
+    #         if len(clip_subclips) == 1:
+    #             self.write_clip_file(clip_subclips[0], clip.video_file,clip)
+    #         else:
+
+    #             resized_subclips = self.resize_clips_to_max_size(clip_subclips)
+    #             concatenated_clip = self.concatenate_clips(resized_subclips)
+    #             self.write_clip_file(concatenated_clip, clip.video_file,clip)
+
+
+    #     return True 
+
     def generate_subclip_videos_with_duration(self):
         
         extracted_times = self.extract_start_end(self.text_file_instance.generated_subclips_srt)
@@ -387,12 +432,27 @@ class Command(BaseCommand):
             clip_subclips = []
             for subclip in clip.subclips.all():
                 logging.debug(f"Processing subclip with ID: {subclip.id}")
-                mv_clip = self.load_video_from_file_field(subclip.to_dict().get('video_path'))
-                clip_with_duration = mv_clip.set_duration(float(subclip.end - subclip.start))
-                logging.debug(f"Loaded video clip from path: {subclip.to_dict().get('video_path')}")
-                cropped_clip = self.crop_to_aspect_ratio_(clip_with_duration, MAINRESOLUTIONS[self.text_file_instance.resolution])
-                logging.debug(f"Cropped clip to resolution: {MAINRESOLUTIONS[self.text_file_instance.resolution]}")
-                clip_subclips.append(cropped_clip)
+                if self.text_file_instance.resolution=='9:16':
+                    mv_clip=self.crop_video_ffmpeg(subclip.to_dict().get('video_path').url)
+                    
+                    clip_with_duration = self.adjust_segment_duration(mv_clip,float(subclip.end - subclip.start))
+                    clip_subclips.append(clip_with_duration)
+
+                else:
+                    mv_clip = self.load_video_from_file_field(subclip.to_dict().get('video_path'))
+                    if subclip.is_tiktok:
+                        cropped_clip=self.crop_video_with_ffmpeg(
+                            subclip.to_dict().get('video_path').url, 
+                            RESOLUTIONS[self.text_file_instance.resolution],
+                            mv_clip,
+                            subclip.is_tiktok
+                            )
+                    else:
+                        cropped_clip = self.crop_to_aspect_ratio_(mv_clip, MAINRESOLUTIONS[self.text_file_instance.resolution])
+                    clip_with_duration = self.adjust_segment_duration(cropped_clip,float(subclip.end - subclip.start))
+                    logging.debug(f"Loaded video clip from path: {subclip.to_dict().get('video_path')}")
+                    logging.debug(f"Cropped clip to resolution: {MAINRESOLUTIONS[self.text_file_instance.resolution]}")
+                    clip_subclips.append(clip_with_duration)
             if len(clip_subclips) == 1:
                 self.write_clip_file(clip_subclips[0], clip.video_file,clip)
             else:
@@ -400,10 +460,103 @@ class Command(BaseCommand):
                 resized_subclips = self.resize_clips_to_max_size(clip_subclips)
                 concatenated_clip = self.concatenate_clips(resized_subclips)
                 self.write_clip_file(concatenated_clip, clip.video_file,clip)
-
-
         return True 
-             
+    
+    def crop_video_with_ffmpeg(self,input_video, output_resolution,clip,is_tiktok):
+        """
+        Crops a video to the desired resolution without stretching.
+        
+        Parameters:
+        - input_video (str): Path to the input video file.
+        - output_resolution (tuple): Desired (width, height) output resolution.
+        
+        Returns:
+        - str: Path to the cropped output video.
+        """
+        output_width, output_height = output_resolution
+
+        input_width, input_height = clip.size
+        clip.close()
+
+        input_aspect = input_width / input_height
+        output_aspect = output_width / output_height
+        if input_aspect > output_aspect:
+            new_width = int(input_height * output_aspect)
+            new_height = input_height
+            x_offset = (input_width - new_width) // 2
+            y_offset = 0
+        else:
+            new_width = input_width
+            new_height = int(input_width / output_aspect)
+            x_offset = 0
+            y_offset = (input_height - new_height) // 2
+
+        # Create a temporary output file
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_output:
+            output_path = temp_output.name
+            if is_tiktok:
+            
+                # cmd = [
+                #     "ffmpeg", "-y", "-i", input_video,
+                #     "-vf", 
+                #     f"split=2[original][blurred];"                                               # Split the video into two streams
+                #     f"[blurred]scale={output_width}:{output_height},boxblur=luma_radius=min(h\,w)/20:luma_power=1[blurred];"  # Blur the entire video
+                #     f"[original]scale={output_width}:{output_height}:force_original_aspect_ratio=decrease[scaled];"  # Scale the original video
+                #     f"[blurred][scaled]overlay=(W-w)/2:(H-h)/2",                                # Overlay the scaled video on the blurred background
+                #     "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                #     "-c:a", "aac", "-b:a", "128k",
+                #     output_path
+                # ]
+                cmd = [
+                        "ffmpeg", "-y", "-i", input_video,
+                        "-fflags", "+genpts",  # Generate new timestamps
+                        "-r", "30",           # Set a common framerate of 30 FPS
+                        "-vf", 
+                        f"split=2[original][blurred];"                                               # Split the video into two streams
+                        f"[blurred]scale={output_width}:{output_height},boxblur=luma_radius=min(h\,w)/20:luma_power=1[blurred];"  # Blur the entire video
+                        f"[original]scale={output_width}:{output_height}:force_original_aspect_ratio=decrease[scaled];"  # Scale the original video
+                        f"[blurred][scaled]overlay=(W-w)/2:(H-h)/2",                                # Overlay the scaled video on the blurred background
+                        "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                        "-c:a", "aac", "-b:a", "128k",
+                        "-fps_mode", "vfr",  # Control synchronization
+                        output_path
+                    ]
+                
+                
+            # FFmpeg command to crop the video
+            else:
+
+                cmd = [
+                    "ffmpeg", "-y", "-i", input_video,
+                    "-vf", f"crop={new_width}:{new_height}:{x_offset}:{y_offset}",
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                    "-c:a", "copy",
+                    output_path
+                ]
+
+            # Run FFmpeg
+            subprocess.run(cmd, check=True)
+
+            return VideoFileClip(output_path)
+    
+    def crop_video_ffmpeg(self, video_url):
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_output:
+            output_path = temp_output.name
+
+            cmd = [
+                "ffmpeg", "-y", "-i", video_url,  
+                "-vf", "scale=-2:1280,crop=720:1280",  # Scale height to 1280, then crop width to 720
+                "-c:v", "libx264", "-preset", "fast", "-crf", "23", 
+                "-c:a", "copy", 
+                output_path
+            ]
+
+            subprocess.run(cmd, check=True)
+
+            clip = VideoFileClip(output_path)
+
+            return clip             
+
     def process_for_clip(self,clip):
         logging.debug(f"Processing clip with ID: {clip.id}")
         clip_subclips = []
@@ -596,7 +749,7 @@ class Command(BaseCommand):
                         stability=0.71,
                         similarity_boost=0.5,
                         style=0.0,
-                        use_speaker_boost=True,
+                        use_speaker_boost=False,
                     ),
                 ),
             )
@@ -1208,15 +1361,54 @@ class Command(BaseCommand):
 
         return video_segments, subtitle_segments
 
+    # def adjust_segment_duration(
+    #     self, segment: VideoFileClip, duration: float
+    # ) -> VideoFileClip:
+    #     current_duration = segment.duration
+    #     if current_duration < duration:
+    #         return loop(segment, duration=duration)
+    #     elif current_duration > duration:
+    #         return segment.subclip(0, duration)
+    #     return segment
     def adjust_segment_duration(
-        self, segment: VideoFileClip, duration: float
-    ) -> VideoFileClip:
-        current_duration = segment.duration
-        if current_duration < duration:
-            return loop(segment, duration=duration)
-        elif current_duration > duration:
-            return segment.subclip(0, duration)
-        return segment
+            self, 
+            segment: VideoFileClip, 
+            duration: float,
+            strict: bool = True
+        ) -> VideoFileClip:
+            current_duration = segment.duration
+
+            if duration < 0:
+                raise ValueError("Target duration must be non-negative.")
+            if current_duration == 0:
+                raise ValueError("Segment duration is zero; cannot adjust.")
+
+            # If durations are very close, still adjust to be exact
+            if abs(current_duration - duration) < 1e-3:
+                return segment.subclip(0, duration)
+
+            adjusted_segment = None
+            if current_duration < duration:
+                # Calculate speed factor with a small buffer to prevent overshooting
+                speed_factor = (current_duration / duration) * 0.999
+                adjusted_segment = segment.fx(vfx.speedx, speed_factor)
+            else:
+                adjusted_segment = segment.subclip(0, duration)
+
+            # When strict mode is enabled, force exact duration
+            if strict:
+                final_duration = adjusted_segment.duration
+                if abs(final_duration - duration) > 0.001:
+                    adjusted_segment = adjusted_segment.subclip(0, duration)
+                
+                # Verify the final duration
+                if abs(adjusted_segment.duration - duration) > 0.001:
+                    raise ValueError(
+                        f"Failed to achieve target duration. "
+                        f"Target: {duration:.3f}, Actual: {adjusted_segment.duration:.3f}"
+                    )
+
+            return adjusted_segment
 
     def get_video_paths_for_text_file(self):
         """
@@ -1273,33 +1465,6 @@ class Command(BaseCommand):
             raise
 
 
-    def add_margin_based_on_aspect_ratio(self,clip, target_aspect_ratio):
-        """
-        Adds margins to a video clip to achieve the desired aspect ratio.
-        
-        Args:
-            clip (VideoClip): The MoviePy VideoClip to process.
-            target_aspect_ratio (float): The desired aspect ratio (width/height).
-        
-        Returns:
-            VideoClip: The video clip with added margins.
-        """
-        original_width, original_height = clip.size
-        original_aspect_ratio = original_width / original_height
-
-        if abs(original_aspect_ratio - target_aspect_ratio) < 0.01:
-            return clip 
-
-        if original_aspect_ratio > target_aspect_ratio:
-            new_height = int(original_width / target_aspect_ratio)
-            margin =int((new_height - original_height) / 2)
-            clip_with_margins = clip.margin(top=margin, bottom=margin)
-        else:
-            new_width = int(original_height * target_aspect_ratio)
-            margin = int((new_width - original_width) / 2)
-            clip_with_margins = clip.margin(left=margin, right=margin)
-
-        return clip_with_margins
 
     def crop_to_aspect_ratio_(self, clip, desired_aspect_ratio):
         original_width, original_height = clip.size
@@ -1344,11 +1509,38 @@ class Command(BaseCommand):
         Checks if the provided MoviePy clip is a VideoFileClip.
         """
         return isinstance(clip, VideoFileClip)
-    
-    def concatenate_clips(self, clips, target_resolution=None, target_fps=None):
 
-        final_clip = concatenate_videoclips(clips, method="compose")
-        logging.info("Clip has been concatenated: ")
+    def concatenate_clips(self, clips, target_resolution=None, target_fps=30):
+        processed_clips = []
+        total_duration = 0
+
+        for clip in clips:
+            original_duration = clip.duration
+
+            # Set frame rate
+            clip = clip.set_fps(target_fps)
+
+            # Ensure audio matches video duration
+            if clip.audio:
+                clip = clip.set_audio(clip.audio.subclip(0, min(clip.audio.duration, clip.duration)))
+
+            # Ensure clip doesn't exceed its original duration
+            clip = clip.subclip(0, original_duration)
+
+            if abs(original_duration - clip.duration) > 0.1: 
+                logging.warning(f"Clip duration changed from {original_duration} to {clip.duration}")
+
+            total_duration += clip.duration
+            processed_clips.append(clip)
+
+        method = "chain" if all(c.size == processed_clips[0].size and c.fps == target_fps for c in processed_clips) else "compose"
+        final_clip = concatenate_videoclips(processed_clips, method=method)
+
+        # Trim final clip to expected duration
+        expected_duration = sum(clip.duration for clip in processed_clips)
+        final_clip = final_clip.subclip(0, min(final_clip.duration, expected_duration))
+
+        logging.info(f"Clips concatenated successfully. Duration: {final_clip.duration}")
         return final_clip
 
     def resize_clips_to_max_size(self, clips):
@@ -1358,6 +1550,7 @@ class Command(BaseCommand):
         resized_clips = [clip.resize(newsize=(max_width, max_height)) for clip in clips]
 
         return resized_clips
+    
     def image_to_video(self,clip, duration):
         """
         Converts an ImageClip to a VideoClip with the specified duration.
@@ -1379,39 +1572,78 @@ class Command(BaseCommand):
             video_clip = clip.set_duration(duration)
             return video_clip
         return None
+    
+    # def replace_video_segments(
+    #     self,
+    #     original_segments: List[VideoFileClip],
+    #     replacement_videos: Dict[int, VideoFileClip],
+    #     subtitles: pysrt.SubRipFile,
+    #     original_video: VideoFileClip,
+    # ) -> List[VideoFileClip]:
+    #     combined_segments = original_segments.copy()
+    #     for replace_index in range(len(replacement_videos)):
+    #         if 0 <= replace_index < len(combined_segments):
+    #             target_duration = combined_segments[replace_index].duration
+    #             start = self.subriptime_to_seconds(subtitles[replace_index].start)
+    #             end = self.subriptime_to_seconds(subtitles[replace_index].end)
+
+    #             if replacement_videos[replace_index].duration < target_duration:
+    #                 replacement_segment = loop(
+    #                     replacement_videos[replace_index], duration=target_duration
+    #                 )
+    #             else:
+    #                 replacement_segment = replacement_videos[replace_index].subclip(
+    #                     0, target_duration
+    #                 )
+
+    #             adjusted_segment = self.adjust_segment_properties(
+    #                 replacement_segment,
+    #                 original_video,
+    #             )
+    #             adjusted_segment_with_subtitles = self.add_subtitles_to_clip(
+    #                 adjusted_segment, subtitles[replace_index]
+    #             )
+    #             combined_segments[replace_index] = adjusted_segment_with_subtitles
+    #     return combined_segments
+
     def replace_video_segments(
-        self,
-        original_segments: List[VideoFileClip],
-        replacement_videos: Dict[int, VideoFileClip],
-        subtitles: pysrt.SubRipFile,
-        original_video: VideoFileClip,
-    ) -> List[VideoFileClip]:
-        combined_segments = original_segments.copy()
-        for replace_index in range(len(replacement_videos)):
-            if 0 <= replace_index < len(combined_segments):
-                target_duration = combined_segments[replace_index].duration
-                start = self.subriptime_to_seconds(subtitles[replace_index].start)
-                end = self.subriptime_to_seconds(subtitles[replace_index].end)
+            self,
+            original_segments: List[VideoFileClip],
+            replacement_videos: Dict[int, VideoFileClip],
+            subtitles: pysrt.SubRipFile,
+            original_video: VideoFileClip,
+        ) -> List[VideoFileClip]:
+            combined_segments = original_segments.copy()
+            for replace_index in range(len(replacement_videos)):
+                if 0 <= replace_index < len(combined_segments):
+                    # Get exact target duration from subtitle timings
+                    start = self.subriptime_to_seconds(subtitles[replace_index].start)
+                    end = self.subriptime_to_seconds(subtitles[replace_index].end)
+                    target_duration = end - start  # Use exact subtitle duration instead of segment duration
 
-                if replacement_videos[replace_index].duration < target_duration:
-                    replacement_segment = loop(
-                        replacement_videos[replace_index], duration=target_duration
-                    )
-                else:
-                    replacement_segment = replacement_videos[replace_index].subclip(
-                        0, target_duration
+                    replacement_segment = self.adjust_segment_duration(
+                        replacement_videos[replace_index], 
+                        duration=target_duration,
+                        strict=True  # New parameter for strict duration control
                     )
 
-                adjusted_segment = self.adjust_segment_properties(
-                    replacement_segment,
-                    original_video,
-                )
-                adjusted_segment_with_subtitles = self.add_subtitles_to_clip(
-                    adjusted_segment, subtitles[replace_index]
-                )
-                combined_segments[replace_index] = adjusted_segment_with_subtitles
-        return combined_segments
-
+                    adjusted_segment = self.adjust_segment_properties(
+                        replacement_segment,
+                        original_video,
+                    )
+                    adjusted_segment_with_subtitles = self.add_subtitles_to_clip(
+                        adjusted_segment, subtitles[replace_index]
+                    )
+                    
+                    # Verify final duration
+                    if abs(adjusted_segment_with_subtitles.duration - target_duration) > 0.001:
+                        adjusted_segment_with_subtitles = adjusted_segment_with_subtitles.subclip(
+                            0, target_duration
+                        )
+                    
+                    combined_segments[replace_index] = adjusted_segment_with_subtitles
+            return combined_segments
+    
     def adjust_segment_properties(
         self, segment: VideoFileClip, original: VideoFileClip
     ) -> VideoFileClip:

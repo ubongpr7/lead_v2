@@ -1392,6 +1392,8 @@ function handleSelection(cNumber) {
         
         </div>
         </div>
+        <input type='number'hidden id='is_tiktok' name='is_tiktok' value='0'/>
+
          <p style="color:red; font-size:13px;" id="error-slide"></p>
         </div>
         </div>
@@ -1464,6 +1466,8 @@ function handleSelection(cNumber) {
               <p id="currentFile"></p>
           </div>
         </div>
+<input type='number'hidden id='is_tiktok' name='is_tiktok' value='0'/>
+
     </div>
     <div style="align-items: end;" class="form-group">
         <button type="submit" id="submit-clip" class="submit-btn">Submit</button>
@@ -1661,6 +1665,23 @@ function clearFileInput(){
             xhr.send(formData);
         }
     }}
+
+    function getVideoDimensions(file, callback) {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+
+    video.onloadedmetadata = function () {
+        window.URL.revokeObjectURL(video.src);
+        callback({ width: video.videoWidth, height: video.videoHeight });
+    };
+
+    video.onerror = function () {
+        callback({ error: "Invalid video file" });
+    };
+
+    video.src = URL.createObjectURL(file);
+}
+
   function saveInput(inputElement) {
             const uploadElement = document.getElementById('upload-text');
 
@@ -1674,6 +1695,22 @@ function clearFileInput(){
                     uploadElement.textContent=fileName.slice(0,13)
                     document.getElementById('currentFile').textContent = ''
                     document.getElementById('clear-file').style.display='flex'
+                    getVideoDimensions(inputElement.files[0], function (dimensions) {
+                if (dimensions.error) {
+                    console.error(dimensions.error);
+                } else {
+                    console.log("Video Width:", dimensions.width);
+                    console.log("Video Height:", dimensions.height);
+            
+                    let aspectRatio = dimensions.width / dimensions.height;
+                    if (Math.abs(aspectRatio - (9 / 16)) < 0.09) { // Allowing a small tolerance
+                        document.getElementById('is_tiktok').value = 1;
+                    } else {
+                        document.getElementById('is_tiktok').value = 0;
+                    }
+                }
+            });
+            
                     
                   }else{
                   uploadElement.textContent= "Choode File"

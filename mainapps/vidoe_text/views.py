@@ -103,6 +103,7 @@ def add_subcliphtmx(request, id):
         remaining = request.POST.get("remaining")
         file_ = request.FILES.get("slide_file")
         text = request.POST.get("slide_text")
+        is_tiktok=request.POST.get(f'is_tiktok')
 
         subclip = None
 
@@ -119,7 +120,10 @@ def add_subcliphtmx(request, id):
                             subtittle=text,
                             video_file=ContentFile(file_content, name=os.path.basename(converted_file_path)),
                             main_line=text_clip,
+                            is_tiktok= True if int(is_tiktok) ==1 else False
+
                         )
+
                     time.sleep(1)  # Adjust as needed
                     os.remove(converted_file_path)
 
@@ -132,7 +136,10 @@ def add_subcliphtmx(request, id):
                     subtittle=text,
                     video_file=file_,
                     main_line=text_clip,
+                    is_tiktok= True if int(is_tiktok) ==1 else False
+
                 )
+            
         
         exists_in_s3=False
         if file_ and subclip.video_file:
@@ -163,6 +170,8 @@ def edit_subcliphtmx(request,id):
     
     if request.method =='POST':
         file_=request.FILES.get(f'slide_file')
+        is_tiktok=request.POST.get(f'is_tiktok')
+
         if subclip.video_file:
             subclip.video_file.delete(save=False)
         if file_:
@@ -184,6 +193,7 @@ def edit_subcliphtmx(request,id):
             else:
                 subclip.video_file.save(file_.name,file_)
             
+        subclip.is_tiktok= True if int(is_tiktok) ==1 else False
         
         subclip.save()
         exists_in_s3=False
@@ -191,7 +201,6 @@ def edit_subcliphtmx(request,id):
             s3_key = subclip.video_file.name  # Get the S3 key
             
             exists_in_s3 = check_s3_file_exists_or_retry(settings.AWS_STORAGE_BUCKET_NAME, s3_key,file_)
-
 
         return JsonResponse({
             "success": True,

@@ -259,6 +259,7 @@ class TextLineVideoClip(models.Model):
 
 class SubClip(models.Model):
     subtittle=models.CharField(max_length=100,)
+    is_tiktok=models.BooleanField(default=False)
     
     start = models.DecimalField(
         null=True, blank=True, max_digits=12, decimal_places=6, default=0.1
