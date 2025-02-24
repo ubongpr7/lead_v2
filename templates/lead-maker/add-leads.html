@@ -640,6 +640,7 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
+
 </script>
 
 
@@ -828,6 +829,8 @@ function addSlide() {
             </div>
         </td>`;
         document.getElementById(`slide_text_${currentNumber}`).focus()
+      toggleColumns(document.getElementById(`slide_text_${currentNumber}`), true)
+
     setTimeout(() => {
         handleEnterToHide(currentNumber,);
         handleSelection(currentNumber);
@@ -859,6 +862,23 @@ function updateSubtitleNumbers(tableBody) {
 
 </script>
 <script>
+function toggleColumns(li, shouldDisable) {
+    let $row = $(li).closest("tr");
+    let $nextCols = $row.find("td").slice(2, 4);
+
+    $nextCols.each(function () {
+        $(this).css({
+            "background-color": shouldDisable ? "#d3d3d3" : ""
+        });
+    });
+
+    $nextCols.find("a, button")
+        .prop("disabled", shouldDisable)
+        .css({
+            "cursor": shouldDisable ? "wait" : "pointer",
+            "pointer-events": shouldDisable ? "none" : "auto"
+        });
+}
 
 
   function handleAutomateToHide(currentNumber) {
@@ -1020,9 +1040,9 @@ function handleEnterToHide(currentNumber,) {
               edit_.style.display = 'flex';
               slide_span.textContent = textarea.value;
 
-              const check=checkSubtitlesLength();
+              
 
-                if (check){
+                if (true){
 
                     if (textarea.value) {
                         
@@ -1108,11 +1128,13 @@ function handleEnterToHide(currentNumber,) {
     textarea.style.display = 'flex';
         wrapper.style.display='flex'
         // delete_.style.display = 'none';
-        edit_.style.display='none'
+        // edit_.style.display='none'
         wrapper.style.display='none'
+        toggleColumns(textarea, true)
 
         
       };
+
   
 document.addEventListener('DOMContentLoaded',()=>{
   if (document.getElementById('no_of_slides').value == 0){
