@@ -864,29 +864,24 @@ function updateSubtitleNumbers(tableBody) {
 </script>
 
 <script>
+
 function toggleColumns(li, shouldDisable) {
-  const row = li.closest("tr");
-  if (!row) return;
+    let $row = $(li).closest("tr");
+    let $nextCols = $row.find("td").slice(2, 4);
 
-  const cells = row.querySelectorAll("td");
+    $nextCols.each(function () {
+        $(this).css({
+            "background-color": shouldDisable ? "#d3d3d3" : ""
+        });
+    });
 
-  // Directly select the 3rd and 4th cells (index 2 and 3)
-  const targetCells = [cells[2], cells[3]];  // Correctly target 3rd and 4th cells
-  console.log(targetCells)
-  targetCells.forEach(cell => {
-    if (cell) { // Check if the cell exists (important for rows with fewer cells)
-      cell.style.backgroundColor = shouldDisable ? "#d3d3d3" : "";
-
-      const elements = cell.querySelectorAll("a, button");
-      elements.forEach(el => {
-        el.disabled = shouldDisable;
-        el.style.cursor = shouldDisable ? "wait" : "pointer";
-        el.style.pointerEvents = shouldDisable ? "none" : "auto";
-      });
-    }
-  });
+    $nextCols.find("a, button")
+        .prop("disabled", shouldDisable)
+        .css({
+            "cursor": shouldDisable ? "wait" : "pointer",
+            "pointer-events": shouldDisable ? "none" : "auto"
+        });
 }
-
 
 
   function handleAutomateToHide(currentNumber) {
@@ -1011,16 +1006,6 @@ function subclipReset(mainId) {
   }
 }
 
-
-
-function toggleColumns(li, shouldDisable) {
-    let $row = $(li).closest("tr"); 
-    let $nextCols = $row.find("td").slice(1, 4); 
-
-    $nextCols.find("input, select, textarea, button")
-        .prop("disabled", shouldDisable)
-        .css("background-color", shouldDisable ? "#d3d3d3" : "");
-}
 
 
 function handleEnterToHide(currentNumber,) {
