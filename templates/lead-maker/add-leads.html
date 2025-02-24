@@ -862,26 +862,28 @@ function updateSubtitleNumbers(tableBody) {
 
 
 </script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
 function toggleColumns(li, shouldDisable) {
-    let $row = $(li).closest("tr");
-    let $nextCols = $row.find("td");
+  const row = li.closest("tr");
+  if (!row) return; // Handle cases where the row isn't found
 
-    $nextCols.each(function () {
-        $(this).css({
-            "background-color": shouldDisable ? "#d3d3d3" : ""
-        });
+  const cells = row.querySelectorAll("td");
+  const nextCols = Array.from(cells).slice(2, 4); // Convert to array for forEach
+
+  nextCols.forEach(cell => {
+    cell.style.backgroundColor = shouldDisable ? "#d3d3d3" : "";
+
+    const elements = cell.querySelectorAll("a, button"); // Select within the cell
+    elements.forEach(el => {
+      el.disabled = shouldDisable;
+      el.style.cursor = shouldDisable ? "wait" : "pointer";
+      el.style.pointerEvents = shouldDisable ? "none" : "auto";
     });
-
-    $nextCols.find("a, button")
-        .prop("disabled", shouldDisable)
-        .css({
-            "cursor": shouldDisable ? "wait" : "pointer",
-            "pointer-events": shouldDisable ? "none" : "auto"
-        });
+  });
 }
+
+
 
 
   function handleAutomateToHide(currentNumber) {
