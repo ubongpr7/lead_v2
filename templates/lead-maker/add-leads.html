@@ -862,10 +862,12 @@ function updateSubtitleNumbers(tableBody) {
 
 
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
 function toggleColumns(li, shouldDisable) {
     let $row = $(li).closest("tr");
-    let $nextCols = $row.find("td").slice(3, 5);
+    let $nextCols = $row.find("td").slice(2, 4);
 
     $nextCols.each(function () {
         $(this).css({
