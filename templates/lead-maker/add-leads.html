@@ -92,11 +92,11 @@
         </a>
         <h5 class="text-center lead-title">Create Your New Lead</h5>
       </div>
-      {% if textfile.trimmed_video %}
+      {% if text_file.trimmed_video %}
       <figure class="video-place" style="background-color: white;" >
         <div class="video-container">
           <video id="video" height="400" controls>
-            <source src="{{textfile.trimmed_video.url}}" type="video/mp4">
+            <source src="{{text_file.trimmed_video.url}}" type="video/mp4">
             Your browser does not support the video tag.
           </video>
         </div>
@@ -495,7 +495,7 @@
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
   
 <script>
-        textFileResolution='{{textfile.resolution}}' 
+        textFileResolution='{{text_file.resolution}}' 
         const userPlan = "{{user.subscription.plan.name}}".toLowerCase(); 
 
   $(document).ready(function () {
