@@ -103,11 +103,7 @@
       </figure>
       {%endif%}
       <div style="display: flex; justify-content: space-between;">
-        <div class="d-flex justify-content-start">
-          <a href="#!" id="createLeadBtn" style="height: fit-content;" class="btn proceed-btn" onclick="addSlide()">
-            Add New Subtitle +
-          </a>
-        </div>
+        
         <div style="position: relative; width: 45%;  background-color: #fff; height: fit-content;">
           <div class="btn proceed-btn"  id="toggleInstruction" onclick="showInstruction()" style="justify-self: right; display: flex; align-items: center; justify-content: space-between; width: 50%; cursor: pointer; font-size: 1.8rem; font-weight: 600; background-color: transparent; border: 1px solid #3663ff; gap: 1rem;">
             <span style="color: #3663ff; font-size: 1.8rem; font-weight: 600;">Instructions</span>
@@ -227,7 +223,11 @@
         {% endif %}
           </tbody>
         </table>
-
+        <div class="d-flex justify-content-start">
+          <a href="#!" id="createLeadBtn" style="height: fit-content;" class="btn proceed-btn" onclick="addSlide()">
+            Add New Subtitle +
+          </a>
+        </div>
         <div class="create-video d-flex justify-content-end">
           <button type="button" onclick="highlightNoSubclipIcons()"  class="btn proceed-btn">
             Proceed To Background Music Selection
